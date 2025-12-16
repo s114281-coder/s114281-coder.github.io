@@ -9,3 +9,53 @@
       hello world
   </body>
 </html>
+// --- 核心設定 ---
+const ROTATE_STEP = 15; // 每次旋轉的角度 (15 度)
+
+// 肢體元素
+const leftFoot = document.getElementById('puppet-left-foot');
+const rightHand = document.getElementById('puppet-right-hand');
+
+// 肢體當前旋轉角度變數 (初始為 0 度)
+let leftFootAngle = 0;
+let rightHandAngle = 0;
+
+// --- 核心旋轉函式 ---
+function updateRotation(element, angle) {
+    // 使用 transform: rotate 進行旋轉
+    element.style.transform = `rotate(${angle}deg)`;
+}
+
+
+// --- 鍵盤事件處理函式 (使用旋轉邏輯) ---
+document.addEventListener('keydown', (event) => {
+    // 阻止瀏覽器預設行為
+    if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
+        event.preventDefault(); 
+    }
+
+    switch (event.code) {
+        // --- 左腳控制 (A/D 鍵) ---
+        case 'KeyA': // A 鍵：左腳向左 (逆時針) 擺動
+            leftFootAngle -= ROTATE_STEP;
+            updateRotation(leftFoot, leftFootAngle);
+            break;
+        case 'KeyD': // D 鍵：左腳向右 (順時針) 擺動
+            leftFootAngle += ROTATE_STEP;
+            updateRotation(leftFoot, leftFootAngle);
+            break;
+
+        // --- 右手控制 (方向鍵) ---
+        case 'ArrowLeft': // 左箭頭鍵：右手向左 (逆時針) 擺動
+            rightHandAngle -= ROTATE_STEP;
+            updateRotation(rightHand, rightHandAngle);
+            break;
+        case 'ArrowRight': // 右箭頭鍵：右手向右 (順時針) 擺動
+            rightHandAngle += ROTATE_STEP;
+            updateRotation(rightHand, rightHandAngle);
+            break;
+
+        default:
+            return;
+    }
+});
