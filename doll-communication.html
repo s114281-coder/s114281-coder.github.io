@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七分極限挑戰賽 - 魔王終極版(+扣分特效)</title>
+    <title>七分極限挑戰賽 - 豪華結算版</title>
     <style>
         :root {
             --bg: #020205;
             --neon-blue: #00d2ff;
             --neon-red: #ff0033;
+            --neon-gold: #ffcc00;
             --glass: rgba(255, 255, 255, 0.05);
         }
 
@@ -17,98 +18,59 @@
             background-image: radial-gradient(circle at 50% 50%, #0d0d1a 0%, #020205 100%);
             color: white;
             font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            user-select: none; /* 防止連點選取文字 */
+            margin: 0; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; overflow: hidden; user-select: none;
         }
 
-        h1 {
-            font-size: 3.5rem;
-            margin: 20px 0;
-            letter-spacing: 10px;
-            color: var(--neon-red);
-            text-shadow: 0 0 30px rgba(255, 0, 51, 0.8);
-            text-align: center;
-        }
+        h1 { font-size: 3.5rem; margin: 20px 0; letter-spacing: 10px; color: var(--neon-red); text-shadow: 0 0 30px rgba(255, 0, 51, 0.8); text-align: center; }
 
         .container {
-            width: 95%;
-            max-width: 1000px;
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 40px;
-            padding: 40px;
-            display: none;
-            animation: glitchIn 0.3s ease;
-            box-shadow: 0 0 100px rgba(0,0,0,0.9);
+            width: 95%; max-width: 1000px; background: var(--glass); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 40px; padding: 40px;
+            display: none; animation: glitchIn 0.3s ease; box-shadow: 0 0 100px rgba(0,0,0,0.9);
         }
-
         .active { display: block; }
 
-        @keyframes glitchIn {
-            0% { opacity: 0; transform: scale(1.1); filter: hue-rotate(90deg); }
-            100% { opacity: 1; transform: scale(1); filter: hue-rotate(0deg); }
-        }
-
-        /* 角色選擇 */
+        /* 角色與難度按鈕樣式 (同前) */
         .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .role-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px; padding: 40px 10px; cursor: pointer; transition: 0.2s; text-align: center;
-        }
+        .role-card { background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 40px 10px; cursor: pointer; transition: 0.2s; text-align: center; }
         .role-card:hover { transform: translateY(-10px); border-color: var(--neon-red); background: rgba(255, 0, 51, 0.1); }
         .char-circle { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 20px; box-shadow: 0 0 25px currentColor; }
-
-        /* 魔王級按鈕 */
-        .diff-btn {
-            width: 100%; padding: 25px; margin: 15px 0; border: none; border-radius: 15px;
-            font-size: 1.6rem; font-weight: 900; cursor: pointer; transition: 0.1s; color: white; text-transform: uppercase; letter-spacing: 2px;
-        }
-        .diff-btn:hover { transform: scale(1.03); filter: brightness(1.3); }
+        
+        .diff-btn { width: 100%; padding: 25px; margin: 15px 0; border: none; border-radius: 15px; font-size: 1.6rem; font-weight: 900; cursor: pointer; color: white; text-transform: uppercase; }
         .b-easy { background: linear-gradient(90deg, #444, #2ecc71); } 
         .b-med { background: linear-gradient(90deg, #d35400, #f1c40f); } 
         .b-hard { background: linear-gradient(90deg, #ff0033, #7e00ff); } 
 
-        /* 遊戲舞台 */
-        #game-stage {
-            width: 100%; height: 65vh; background: rgba(0,0,0,0.8);
-            border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);
-            position: relative; overflow: hidden; margin-top: 20px; cursor: crosshair;
-        }
+        #game-stage { width: 100%; height: 65vh; background: rgba(0,0,0,0.8); border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; margin-top: 20px; cursor: crosshair; }
+        #target { width: 80px; height: 80px; border-radius: 50%; position: absolute; cursor: crosshair; z-index: 100; display: none; border: 4px solid #fff; box-shadow: 0 0 50px rgba(255,255,255,0.6); }
 
-        #target {
-            width: 80px; height: 80px; border-radius: 50%; position: absolute; cursor: crosshair; z-index: 100;
-            display: none; border: 4px solid #fff; box-shadow: 0 0 50px rgba(255,255,255,0.6);
-        }
+        .info-panel { display: flex; justify-content: space-between; font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-red); }
 
-        .info-panel {
-            display: flex; justify-content: space-between; font-size: 2.2rem; font-weight: 900; color: #fff;
-            margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-red);
-        }
+        /* 💥 扣分特效 */
+        .miss-popup { position: absolute; color: var(--neon-red); font-size: 3rem; font-weight: 900; text-shadow: 0 0 20px var(--neon-red); pointer-events: none; animation: popupAnim 0.5s ease-out forwards; z-index: 99; }
+        @keyframes popupAnim { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); } 100% { opacity: 0; transform: translate(-50%, -150%) scale(1); } }
 
-        /* 💥 新增：扣分特效樣式 */
-        .miss-popup {
-            position: absolute;
-            color: var(--neon-red);
-            font-size: 3rem;
-            font-weight: 900;
-            text-shadow: 0 0 20px var(--neon-red);
-            pointer-events: none; /* 確保不會擋住滑鼠點擊 */
-            animation: popupAnim 0.5s ease-out forwards;
-            z-index: 99;
+        /* 🏆 新增：自定義結算對話框 (置中) */
+        #result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
         }
+        #result-box {
+            width: 80%; max-width: 500px; background: #111; border: 4px solid var(--neon-blue);
+            border-radius: 30px; padding: 40px; text-align: center;
+            box-shadow: 0 0 50px rgba(0, 210, 255, 0.5);
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .result-win { border-color: var(--neon-gold) !important; box-shadow: 0 0 50px rgba(255, 204, 0, 0.5) !important; }
+        .result-lose { border-color: var(--neon-red) !important; box-shadow: 0 0 50px rgba(255, 0, 51, 0.5) !important; }
 
-        @keyframes popupAnim {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-            50% { transform: translate(-50%, -100%) scale(1.2); }
-            100% { opacity: 0; transform: translate(-50%, -150%) scale(1); }
-        }
+        .res-title { font-size: 3rem; font-weight: 900; margin-bottom: 10px; }
+        .res-msg { font-size: 1.5rem; margin-bottom: 30px; color: #ccc; }
+        .res-btn { background: var(--neon-blue); color: #000; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -116,47 +78,50 @@
     <h1>七分極限挑戰賽</h1>
 
     <div id="step1" class="container active">
-        <h2 style="text-align:center; color: #666; letter-spacing: 5px;">請選擇你的參賽英雄</h2>
+        <h2 style="text-align:center; color: #666;">選擇英雄</h2>
         <div class="role-grid">
             <div class="role-card" onclick="setRole('gold')">
                 <div class="char-circle" style="background: gold; color: gold;"></div>
-                <div style="font-weight:bold; font-size: 1.2rem;">黃金英雄</div>
+                <b>黃金英雄</b>
             </div>
             <div class="role-card" onclick="setRole('cyan')">
                 <div class="char-circle" style="background: cyan; color: cyan;"></div>
-                <div style="font-weight:bold; font-size: 1.2rem;">青藍忍者</div>
+                <b>青藍忍者</b>
             </div>
             <div class="role-card" onclick="setRole('magenta')">
                 <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
-                <div style="font-weight:bold; font-size: 1.2rem;">桃紅刺客</div>
+                <b>桃紅刺客</b>
             </div>
         </div>
     </div>
 
     <div id="step2" class="container" style="max-width: 600px;">
-        <h2 style="text-align:center; color: var(--neon-red);">警告：進入超頻反應狀態</h2>
-        <button class="diff-btn b-easy" onclick="start(25, 700)">地獄簡單 [25秒 / 0.7秒]</button>
-        <button class="diff-btn b-med" onclick="start(20, 500)">極限中等 [20秒 / 0.5秒]</button>
-        <button class="diff-btn b-hard" onclick="start(15, 350)">絕對領域 [15秒 / 0.35秒]</button>
-        <p onclick="location.reload()" style="text-align:center; color:#444; cursor:pointer; margin-top:20px;">← 撤退（返回重新選擇）</p>
+        <h2 style="text-align:center;">進入超頻狀態</h2>
+        <button class="diff-btn b-easy" onclick="start(25, 700)">地獄簡單</button>
+        <button class="diff-btn b-med" onclick="start(20, 500)">極限中等</button>
+        <button class="diff-btn b-hard" onclick="start(15, 350)">絕對領域</button>
     </div>
 
     <div id="step3" class="container" style="max-width: 1200px; width: 98%;">
         <div class="info-panel">
-            <span>剩餘時間: <span id="timer" style="color:var(--neon-red);">--</span></span>
-            <span>擊中次數: <span id="score">0</span> / 7</span>
+            <span>時間: <span id="timer">--</span>s</span>
+            <span>得分: <span id="score">0</span> / 7</span>
         </div>
         <div id="game-stage">
             <div id="target"></div>
         </div>
     </div>
 
+    <div id="result-overlay">
+        <div id="result-box">
+            <div id="res-title" class="res-title">挑戰結束</div>
+            <div id="res-msg" class="res-msg">結果訊息在此</div>
+            <button class="res-btn" onclick="location.reload()">再次嘗試</button>
+        </div>
+    </div>
+
     <script>
-        let pColor = "";
-        let pScore = 0;
-        let pTime = 0;
-        let active = false;
-        let moveTimer;
+        let pColor = "", pScore = 0, pTime = 0, active = false, moveTimer;
 
         function setRole(c) {
             pColor = (c === 'magenta') ? '#ff007f' : c;
@@ -171,91 +136,8 @@
 
             const ball = document.getElementById('target');
             ball.style.backgroundColor = pColor;
-            ball.style.boxShadow = `0 0 60px ${pColor}, 0 0 20px #fff`;
             ball.style.display = 'block';
 
             const countdown = setInterval(() => {
                 pTime--;
                 document.getElementById('timer').innerText = pTime;
-                if (pTime <= 0) {
-                    clearInterval(countdown);
-                    if (active) end(false);
-                }
-            }, 1000);
-            jump(speed);
-        }
-
-        function jump(speed) {
-            if (!active) return;
-            const stage = document.getElementById('game-stage');
-            const ball = document.getElementById('target');
-            const x = Math.random() * (stage.clientWidth - 90);
-            const y = Math.random() * (stage.clientHeight - 90);
-            ball.style.left = x + "px";
-            ball.style.top = y + "px";
-            moveTimer = setTimeout(() => jump(speed), speed);
-        }
-
-        // 💥 擊中目標 (加分)
-        document.getElementById('target').onmousedown = function(e) {
-            e.stopPropagation(); // 阻止事件傳遞到背景
-            if (!active) return;
-            pScore++;
-            updateScore();
-            this.style.filter = "brightness(2) scale(1.2)";
-            setTimeout(() => this.style.filter = "brightness(1) scale(1)", 50);
-            if (pScore >= 7) end(true);
-        };
-
-        // 💥 擊中背景 (扣分特效)
-        document.getElementById('game-stage').onmousedown = function(e) {
-            if (!active) return;
-            
-            // 1. 扣分邏輯 (最低到 0)
-            if (pScore > 0) {
-                pScore--;
-                updateScore();
-            }
-
-            // 2. 顯示 -1 特效
-            showMissEffect(e.clientX, e.clientY);
-        };
-
-        function updateScore() {
-            document.getElementById('score').innerText = pScore;
-        }
-
-        // 創建並顯示扣分動畫的函數
-        function showMissEffect(x, y) {
-            const stage = document.getElementById('game-stage');
-            const rect = stage.getBoundingClientRect();
-            
-            // 計算相對於舞台的座標
-            const relativeX = x - rect.left;
-            const relativeY = y - rect.top;
-
-            const popup = document.createElement('div');
-            popup.className = 'miss-popup';
-            popup.innerText = '-1';
-            popup.style.left = relativeX + 'px';
-            popup.style.top = relativeY + 'px';
-            
-            stage.appendChild(popup);
-
-            // 動畫結束後移除元素
-            setTimeout(() => {
-                popup.remove();
-            }, 500);
-        }
-
-        function end(win) {
-            active = false;
-            clearTimeout(moveTimer);
-            setTimeout(() => {
-                alert(win ? "🏆 成功通關！你已經超越了人類的反應極限！" : "⌛ 失敗！在這種速度面前，凡人終究無能為力。");
-                location.reload();
-            }, 100);
-        }
-    </script>
-</body>
-</html>
