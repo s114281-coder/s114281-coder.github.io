@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七分極限挑戰賽 - 豪華結算版</title>
+    <title>七分極限挑戰賽 - 平衡版</title>
     <style>
         :root {
             --bg: #020205;
@@ -22,194 +22,41 @@
             min-height: 100vh; overflow: hidden; user-select: none;
         }
 
-        h1 { font-size: 3.5rem; margin: 20px 0; letter-spacing: 10px; color: var(--neon-red); text-shadow: 0 0 30px rgba(255, 0, 51, 0.8); text-align: center; }
+        h1 { font-size: 3.2rem; margin: 20px 0; letter-spacing: 8px; color: var(--neon-blue); text-shadow: 0 0 20px rgba(0, 210, 255, 0.6); text-align: center; }
 
         .container {
             width: 95%; max-width: 1000px; background: var(--glass); backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 40px; padding: 40px;
-            display: none; animation: glitchIn 0.3s ease; box-shadow: 0 0 100px rgba(0,0,0,0.9);
+            display: none; animation: fadeIn 0.4s ease; box-shadow: 0 0 80px rgba(0,0,0,0.8);
         }
         .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 角色與難度按鈕樣式 (同前) */
+        /* 選角與按鈕 */
         .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .role-card { background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 40px 10px; cursor: pointer; transition: 0.2s; text-align: center; }
-        .role-card:hover { transform: translateY(-10px); border-color: var(--neon-red); background: rgba(255, 0, 51, 0.1); }
+        .role-card:hover { transform: translateY(-8px); border-color: var(--neon-blue); background: rgba(0, 210, 255, 0.1); }
         .char-circle { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 20px; box-shadow: 0 0 25px currentColor; }
         
-        .diff-btn { width: 100%; padding: 25px; margin: 15px 0; border: none; border-radius: 15px; font-size: 1.6rem; font-weight: 900; cursor: pointer; color: white; text-transform: uppercase; }
-        .b-easy { background: linear-gradient(90deg, #444, #2ecc71); } 
-        .b-med { background: linear-gradient(90deg, #d35400, #f1c40f); } 
-        .b-hard { background: linear-gradient(90deg, #ff0033, #7e00ff); } 
+        .diff-btn { width: 100%; padding: 22px; margin: 12px 0; border: none; border-radius: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; }
+        .diff-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .b-easy { background: linear-gradient(90deg, #27ae60, #2ecc71); } 
+        .b-med { background: linear-gradient(90deg, #f39c12, #f1c40f); } 
+        .b-hard { background: linear-gradient(90deg, #c0392b, #e74c3c); } 
 
-        #game-stage { width: 100%; height: 65vh; background: rgba(0,0,0,0.8); border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; margin-top: 20px; cursor: crosshair; }
-        #target { width: 80px; height: 80px; border-radius: 50%; position: absolute; cursor: crosshair; z-index: 100; display: none; border: 4px solid #fff; box-shadow: 0 0 50px rgba(255,255,255,0.6); }
+        /* 遊戲區 */
+        #game-stage { width: 100%; height: 65vh; background: rgba(0,0,0,0.6); border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; margin-top: 20px; cursor: crosshair; }
+        #target { width: 85px; height: 85px; border-radius: 50%; position: absolute; cursor: crosshair; z-index: 100; display: none; border: 3px solid #fff; box-shadow: 0 0 40px rgba(255,255,255,0.4); }
 
-        .info-panel { display: flex; justify-content: space-between; font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-red); }
+        .info-panel { display: flex; justify-content: space-around; font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-blue); }
 
-        /* 💥 扣分特效 */
+        /* 扣分特效 */
         .miss-popup { position: absolute; color: var(--neon-red); font-size: 3rem; font-weight: 900; text-shadow: 0 0 20px var(--neon-red); pointer-events: none; animation: popupAnim 0.5s ease-out forwards; z-index: 99; }
         @keyframes popupAnim { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); } 100% { opacity: 0; transform: translate(-50%, -150%) scale(1); } }
 
-        /* 🏆 新增：自定義結算對話框 (置中) */
-        #result-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
-            display: none; align-items: center; justify-content: center; z-index: 1000;
-        }
-        #result-box {
-            width: 80%; max-width: 500px; background: #111; border: 4px solid var(--neon-blue);
-            border-radius: 30px; padding: 40px; text-align: center;
-            box-shadow: 0 0 50px rgba(0, 210, 255, 0.5);
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes modalPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* 置中結果視窗 */
+        #result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        #result-box { width: 85%; max-width: 450px; background: #111; border: 4px solid var(--neon-blue); border-radius: 30px; padding: 40px; text-align: center; box-shadow: 0 0 50px rgba(0, 210, 255, 0.4); animation: modalPop 0.3s ease-out; }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .result-win { border-color: var(--neon-gold) !important; box-shadow: 0 0 50px rgba(255, 204, 0, 0.5) !important; }
-        .result-lose { border-color: var(--neon-red) !important; box-shadow: 0 0 50px rgba(255, 0, 51, 0.5) !important; }
-
-        .res-title { font-size: 3rem; font-weight: 900; margin-bottom: 10px; }
-        .res-msg { font-size: 1.5rem; margin-bottom: 30px; color: #ccc; }
-        .res-btn { background: var(--neon-blue); color: #000; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-    <h1>七分極限挑戰賽</h1>
-
-    <div id="step1" class="container active">
-        <h2 style="text-align:center; color: #666;">選擇英雄</h2>
-        <div class="role-grid">
-            <div class="role-card" onclick="setRole('gold')">
-                <div class="char-circle" style="background: gold; color: gold;"></div>
-                <b>黃金英雄</b>
-            </div>
-            <div class="role-card" onclick="setRole('cyan')">
-                <div class="char-circle" style="background: cyan; color: cyan;"></div>
-                <b>青藍忍者</b>
-            </div>
-            <div class="role-card" onclick="setRole('magenta')">
-                <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
-                <b>桃紅刺客</b>
-            </div>
-        </div>
-    </div>
-
-    <div id="step2" class="container" style="max-width: 600px;">
-        <h2 style="text-align:center;">進入超頻狀態</h2>
-        <button class="diff-btn b-easy" onclick="start(25, 700)">地獄簡單</button>
-        <button class="diff-btn b-med" onclick="start(20, 500)">極限中等</button>
-        <button class="diff-btn b-hard" onclick="start(15, 350)">絕對領域</button>
-    </div>
-
-    <div id="step3" class="container" style="max-width: 1200px; width: 98%;">
-        <div class="info-panel">
-            <span>時間: <span id="timer">--</span>s</span>
-            <span>得分: <span id="score">0</span> / 7</span>
-        </div>
-        <div id="game-stage">
-            <div id="target"></div>
-        </div>
-    </div>
-
-    <div id="result-overlay">
-        <div id="result-box">
-            <div id="res-title" class="res-title">挑戰結束</div>
-            <div id="res-msg" class="res-msg">結果訊息在此</div>
-            <button class="res-btn" onclick="location.reload()">再次嘗試</button>
-        </div>
-    </div>
-
-    <script>
-        let pColor = "", pScore = 0, pTime = 0, active = false, moveTimer;
-
-        function setRole(c) {
-            pColor = (c === 'magenta') ? '#ff007f' : c;
-            document.getElementById('step1').classList.remove('active');
-            document.getElementById('step2').classList.add('active');
-        }
-
-        function start(sec, speed) {
-            pTime = sec; pScore = 0; active = true;
-            document.getElementById('step2').classList.remove('active');
-            document.getElementById('step3').classList.add('active');
-
-            const ball = document.getElementById('target');
-            ball.style.backgroundColor = pColor;
-            ball.style.display = 'block';
-
-            const countdown = setInterval(() => {
-                pTime--;
-                document.getElementById('timer').innerText = pTime;
-                if (pTime <= 0) {
-                    clearInterval(countdown);
-                    if (active) end(false);
-                }
-            }, 1000);
-            jump(speed);
-        }
-
-        function jump(speed) {
-            if (!active) return;
-            const stage = document.getElementById('game-stage');
-            const ball = document.getElementById('target');
-            ball.style.left = Math.random() * (stage.clientWidth - 90) + "px";
-            ball.style.top = Math.random() * (stage.clientHeight - 90) + "px";
-            moveTimer = setTimeout(() => jump(speed), speed);
-        }
-
-        // 加分
-        document.getElementById('target').onmousedown = function(e) {
-            e.stopPropagation();
-            if (!active) return;
-            pScore++;
-            document.getElementById('score').innerText = pScore;
-            if (pScore >= 7) end(true);
-        };
-
-        // 扣分背景
-        document.getElementById('game-stage').onmousedown = function(e) {
-            if (!active) return;
-            if (pScore > 0) { pScore--; document.getElementById('score').innerText = pScore; }
-            showMiss(e.clientX, e.clientY);
-        };
-
-        function showMiss(x, y) {
-            const stage = document.getElementById('game-stage');
-            const rect = stage.getBoundingClientRect();
-            const popup = document.createElement('div');
-            popup.className = 'miss-popup';
-            popup.innerText = '-1';
-            popup.style.left = (x - rect.left) + 'px';
-            popup.style.top = (y - rect.top) + 'px';
-            stage.appendChild(popup);
-            setTimeout(() => popup.remove(), 500);
-        }
-
-        // 🏆 顯示置中結果視窗
-        function end(win) {
-            active = false;
-            clearTimeout(moveTimer);
-            
-            const overlay = document.getElementById('result-overlay');
-            const box = document.getElementById('result-box');
-            const title = document.getElementById('res-title');
-            const msg = document.getElementById('res-msg');
-
-            overlay.style.display = 'flex';
-            
-            if (win) {
-                box.className = 'result-win';
-                title.innerText = "🏆 挑戰成功";
-                title.style.color = "var(--neon-gold)";
-                msg.innerText = "你的反應速度已經超越了凡人的境界！";
-            } else {
-                box.className = 'result-lose';
-                title.innerText = "⌛ 挑戰失敗";
-                title.style.color = "var(--neon-red)";
-                msg.innerText = "在這個難度面前，還需要更多的練習。";
-            }
-        }
-    </script>
-</body>
-</html>
+        .result-win { border-color: var(--neon-gold) !important
