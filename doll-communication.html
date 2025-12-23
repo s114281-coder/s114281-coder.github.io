@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七分極限挑戰賽 - 魔王版</title>
+    <title>七分極限挑戰賽 - 魔王終極版(+扣分特效)</title>
     <style>
         :root {
             --bg: #020205;
@@ -16,13 +16,14 @@
             background: var(--bg);
             background-image: radial-gradient(circle at 50% 50%, #0d0d1a 0%, #020205 100%);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
+            user-select: none; /* 防止連點選取文字 */
         }
 
         h1 {
@@ -55,86 +56,58 @@
         }
 
         /* 角色選擇 */
-        .role-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .role-card {
             background: rgba(255, 255, 255, 0.03);
             border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 40px 10px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
+            border-radius: 20px; padding: 40px 10px; cursor: pointer; transition: 0.2s; text-align: center;
         }
-
-        .role-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--neon-red);
-            background: rgba(255, 0, 51, 0.1);
-        }
-
-        .char-circle {
-            width: 90px; height: 90px; border-radius: 50%;
-            margin: 0 auto 20px;
-            box-shadow: 0 0 25px currentColor;
-        }
+        .role-card:hover { transform: translateY(-10px); border-color: var(--neon-red); background: rgba(255, 0, 51, 0.1); }
+        .char-circle { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 20px; box-shadow: 0 0 25px currentColor; }
 
         /* 魔王級按鈕 */
         .diff-btn {
-            width: 100%;
-            padding: 25px;
-            margin: 15px 0;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.6rem;
-            font-weight: 900;
-            cursor: pointer;
-            transition: 0.1s;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            width: 100%; padding: 25px; margin: 15px 0; border: none; border-radius: 15px;
+            font-size: 1.6rem; font-weight: 900; cursor: pointer; transition: 0.1s; color: white; text-transform: uppercase; letter-spacing: 2px;
         }
-
         .diff-btn:hover { transform: scale(1.03); filter: brightness(1.3); }
-        .b-easy { background: linear-gradient(90deg, #444, #2ecc71); } /* 地獄簡單 */
-        .b-med { background: linear-gradient(90deg, #d35400, #f1c40f); } /* 極限中等 */
-        .b-hard { background: linear-gradient(90deg, #ff0033, #7e00ff); } /* 絕對領域 */
+        .b-easy { background: linear-gradient(90deg, #444, #2ecc71); } 
+        .b-med { background: linear-gradient(90deg, #d35400, #f1c40f); } 
+        .b-hard { background: linear-gradient(90deg, #ff0033, #7e00ff); } 
 
         /* 遊戲舞台 */
         #game-stage {
-            width: 100%;
-            height: 65vh;
-            background: rgba(0,0,0,0.8);
-            border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-            margin-top: 20px;
+            width: 100%; height: 65vh; background: rgba(0,0,0,0.8);
+            border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);
+            position: relative; overflow: hidden; margin-top: 20px; cursor: crosshair;
         }
 
         #target {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            position: absolute;
-            cursor: crosshair;
-            z-index: 100;
-            display: none;
-            border: 4px solid #fff;
-            box-shadow: 0 0 50px rgba(255,255,255,0.6);
+            width: 80px; height: 80px; border-radius: 50%; position: absolute; cursor: crosshair; z-index: 100;
+            display: none; border: 4px solid #fff; box-shadow: 0 0 50px rgba(255,255,255,0.6);
         }
 
         .info-panel {
-            display: flex;
-            justify-content: space-between;
-            font-size: 2.5rem;
+            display: flex; justify-content: space-between; font-size: 2.2rem; font-weight: 900; color: #fff;
+            margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-red);
+        }
+
+        /* 💥 新增：扣分特效樣式 */
+        .miss-popup {
+            position: absolute;
+            color: var(--neon-red);
+            font-size: 3rem;
             font-weight: 900;
-            color: #fff;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px var(--neon-red);
+            text-shadow: 0 0 20px var(--neon-red);
+            pointer-events: none; /* 確保不會擋住滑鼠點擊 */
+            animation: popupAnim 0.5s ease-out forwards;
+            z-index: 99;
+        }
+
+        @keyframes popupAnim {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            50% { transform: translate(-50%, -100%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1); }
         }
     </style>
 </head>
@@ -143,35 +116,35 @@
     <h1>七分極限挑戰賽</h1>
 
     <div id="step1" class="container active">
-        <h2 style="text-align:center; color: #666; letter-spacing: 5px;">CHOOSE YOUR AVATAR</h2>
+        <h2 style="text-align:center; color: #666; letter-spacing: 5px;">請選擇你的參賽英雄</h2>
         <div class="role-grid">
             <div class="role-card" onclick="setRole('gold')">
                 <div class="char-circle" style="background: gold; color: gold;"></div>
-                <div style="font-weight:bold;">GOLD HERO</div>
+                <div style="font-weight:bold; font-size: 1.2rem;">黃金英雄</div>
             </div>
             <div class="role-card" onclick="setRole('cyan')">
                 <div class="char-circle" style="background: cyan; color: cyan;"></div>
-                <div style="font-weight:bold;">CYAN NINJA</div>
+                <div style="font-weight:bold; font-size: 1.2rem;">青藍忍者</div>
             </div>
             <div class="role-card" onclick="setRole('magenta')">
                 <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
-                <div style="font-weight:bold;">PINK ASSASSIN</div>
+                <div style="font-weight:bold; font-size: 1.2rem;">桃紅刺客</div>
             </div>
         </div>
     </div>
 
     <div id="step2" class="container" style="max-width: 600px;">
-        <h2 style="text-align:center; color: var(--neon-red);">WARNING: EXTREME SPEED</h2>
-        <button class="diff-btn b-easy" onclick="start(25, 700)">地獄簡單 [25s / 0.7s]</button>
-        <button class="diff-btn b-med" onclick="start(20, 500)">極限中等 [20s / 0.5s]</button>
-        <button class="diff-btn b-hard" onclick="start(15, 350)">絕對領域 [15s / 0.35s]</button>
-        <p onclick="location.reload()" style="text-align:center; color:#444; cursor:pointer;">← RETREAT</p>
+        <h2 style="text-align:center; color: var(--neon-red);">警告：進入超頻反應狀態</h2>
+        <button class="diff-btn b-easy" onclick="start(25, 700)">地獄簡單 [25秒 / 0.7秒]</button>
+        <button class="diff-btn b-med" onclick="start(20, 500)">極限中等 [20秒 / 0.5秒]</button>
+        <button class="diff-btn b-hard" onclick="start(15, 350)">絕對領域 [15秒 / 0.35秒]</button>
+        <p onclick="location.reload()" style="text-align:center; color:#444; cursor:pointer; margin-top:20px;">← 撤退（返回重新選擇）</p>
     </div>
 
     <div id="step3" class="container" style="max-width: 1200px; width: 98%;">
         <div class="info-panel">
-            <span>TIME: <span id="timer" style="color:var(--neon-red);">--</span></span>
-            <span>SCORE: <span id="score">0</span> / 7</span>
+            <span>剩餘時間: <span id="timer" style="color:var(--neon-red);">--</span></span>
+            <span>擊中次數: <span id="score">0</span> / 7</span>
         </div>
         <div id="game-stage">
             <div id="target"></div>
@@ -216,33 +189,70 @@
             if (!active) return;
             const stage = document.getElementById('game-stage');
             const ball = document.getElementById('target');
-            
             const x = Math.random() * (stage.clientWidth - 90);
             const y = Math.random() * (stage.clientHeight - 90);
-            
             ball.style.left = x + "px";
             ball.style.top = y + "px";
-            
             moveTimer = setTimeout(() => jump(speed), speed);
         }
 
-        document.getElementById('target').onmousedown = function() {
+        // 💥 擊中目標 (加分)
+        document.getElementById('target').onmousedown = function(e) {
+            e.stopPropagation(); // 阻止事件傳遞到背景
             if (!active) return;
             pScore++;
-            document.getElementById('score').innerText = pScore;
-            
-            // 擊中特效
+            updateScore();
             this.style.filter = "brightness(2) scale(1.2)";
             setTimeout(() => this.style.filter = "brightness(1) scale(1)", 50);
-
             if (pScore >= 7) end(true);
         };
+
+        // 💥 擊中背景 (扣分特效)
+        document.getElementById('game-stage').onmousedown = function(e) {
+            if (!active) return;
+            
+            // 1. 扣分邏輯 (最低到 0)
+            if (pScore > 0) {
+                pScore--;
+                updateScore();
+            }
+
+            // 2. 顯示 -1 特效
+            showMissEffect(e.clientX, e.clientY);
+        };
+
+        function updateScore() {
+            document.getElementById('score').innerText = pScore;
+        }
+
+        // 創建並顯示扣分動畫的函數
+        function showMissEffect(x, y) {
+            const stage = document.getElementById('game-stage');
+            const rect = stage.getBoundingClientRect();
+            
+            // 計算相對於舞台的座標
+            const relativeX = x - rect.left;
+            const relativeY = y - rect.top;
+
+            const popup = document.createElement('div');
+            popup.className = 'miss-popup';
+            popup.innerText = '-1';
+            popup.style.left = relativeX + 'px';
+            popup.style.top = relativeY + 'px';
+            
+            stage.appendChild(popup);
+
+            // 動畫結束後移除元素
+            setTimeout(() => {
+                popup.remove();
+            }, 500);
+        }
 
         function end(win) {
             active = false;
             clearTimeout(moveTimer);
             setTimeout(() => {
-                alert(win ? "🏆 你不是人類！絕對領域已被你突破！" : "⌛ 失敗... 你的反應跟不上這個難度。");
+                alert(win ? "🏆 成功通關！你已經超越了人類的反應極限！" : "⌛ 失敗！在這種速度面前，凡人終究無能為力。");
                 location.reload();
             }, 100);
         }
