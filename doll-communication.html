@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURAL REACTION - 角色中文版</title>
+    <title>NEURAL REACTION - 完整特效版</title>
     <style>
         :root {
             --bg: #050510;
@@ -82,11 +82,29 @@
         #game-stage {
             width: 100%; height: 60vh; background: #000; border-radius: 30px;
             border: 2px solid rgba(255,255,255,0.05); position: relative; overflow: hidden;
-            box-shadow: inset 0 0 100px rgba(0,0,0,1);
+            box-shadow: inset 0 0 100px rgba(0,0,0,1); cursor: crosshair;
         }
-        #target { width: 80px; height: 80px; border-radius: 50%; position: absolute; display: none; z-index: 10; border: 4px solid #fff; }
+        #target { width: 80px; height: 80px; border-radius: 50%; position: absolute; display: none; z-index: 10; border: 4px solid #fff; cursor: crosshair; }
 
         .info-panel { display: flex; justify-content: space-around; font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; }
+
+        /* --- 💥 加分與扣分特效 --- */
+        .popup-effect {
+            position: absolute;
+            font-size: 2.5rem;
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 101;
+            animation: popupFloat 0.5s ease-out forwards;
+            text-shadow: 0 0 15px currentColor;
+        }
+        .popup-miss { color: var(--neon-red); }
+        .popup-hit { color: var(--neon-green); }
+
+        @keyframes popupFloat {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.2); }
+        }
 
         /* 結算 */
         #result-overlay {
@@ -187,32 +205,34 @@
             moveTimer = setTimeout(() => jump(speed), speed);
         }
 
+        // 擊中目標 (+1)
         document.getElementById('target').onmousedown = function(e) {
             e.stopPropagation(); if (!active) return;
             pScore++; document.getElementById('score').innerText = pScore;
+            // 顯示綠色 +1 特效
+            showPopup(e.clientX, e.clientY, '+1', 'popup-hit');
             if (pScore >= 7) end(true);
         };
 
+        // 擊中背景 (-1)
         document.getElementById('game-stage').onmousedown = function(e) {
             if (!active) return;
             if (pScore > 0) { pScore--; document.getElementById('score').innerText = pScore; }
-            showMiss(e.clientX, e.clientY);
+            // 顯示紅色 -1 特效
+            showPopup(e.clientX, e.clientY, '-1', 'popup-miss');
         };
 
-        function showMiss(x, y) {
+        // 統一的特效顯示函數
+        function showPopup(x, y, text, typeClass) {
             const stage = document.getElementById('game-stage');
             const rect = stage.getBoundingClientRect();
             const popup = document.createElement('div');
-            popup.style.position = 'absolute';
-            popup.style.color = 'var(--neon-red)';
-            popup.style.fontSize = '2rem';
-            popup.style.fontWeight = '900';
-            popup.innerText = '-1';
+            popup.className = `popup-effect ${typeClass}`; // 套用共用動畫和特定顏色類別
+            popup.innerText = text;
             popup.style.left = (x - rect.left) + 'px';
             popup.style.top = (y - rect.top) + 'px';
-            popup.style.pointerEvents = 'none';
             stage.appendChild(popup);
-            setTimeout(() => popup.remove(), 400);
+            setTimeout(() => popup.remove(), 500);
         }
 
         function end(win) {
@@ -231,3 +251,4 @@
     </script>
 </body>
 </html>
+ 
