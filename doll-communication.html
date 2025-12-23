@@ -141,3 +141,75 @@
             const countdown = setInterval(() => {
                 pTime--;
                 document.getElementById('timer').innerText = pTime;
+                if (pTime <= 0) {
+                    clearInterval(countdown);
+                    if (active) end(false);
+                }
+            }, 1000);
+            jump(speed);
+        }
+
+        function jump(speed) {
+            if (!active) return;
+            const stage = document.getElementById('game-stage');
+            const ball = document.getElementById('target');
+            ball.style.left = Math.random() * (stage.clientWidth - 90) + "px";
+            ball.style.top = Math.random() * (stage.clientHeight - 90) + "px";
+            moveTimer = setTimeout(() => jump(speed), speed);
+        }
+
+        // 加分
+        document.getElementById('target').onmousedown = function(e) {
+            e.stopPropagation();
+            if (!active) return;
+            pScore++;
+            document.getElementById('score').innerText = pScore;
+            if (pScore >= 7) end(true);
+        };
+
+        // 扣分背景
+        document.getElementById('game-stage').onmousedown = function(e) {
+            if (!active) return;
+            if (pScore > 0) { pScore--; document.getElementById('score').innerText = pScore; }
+            showMiss(e.clientX, e.clientY);
+        };
+
+        function showMiss(x, y) {
+            const stage = document.getElementById('game-stage');
+            const rect = stage.getBoundingClientRect();
+            const popup = document.createElement('div');
+            popup.className = 'miss-popup';
+            popup.innerText = '-1';
+            popup.style.left = (x - rect.left) + 'px';
+            popup.style.top = (y - rect.top) + 'px';
+            stage.appendChild(popup);
+            setTimeout(() => popup.remove(), 500);
+        }
+
+        // 🏆 顯示置中結果視窗
+        function end(win) {
+            active = false;
+            clearTimeout(moveTimer);
+            
+            const overlay = document.getElementById('result-overlay');
+            const box = document.getElementById('result-box');
+            const title = document.getElementById('res-title');
+            const msg = document.getElementById('res-msg');
+
+            overlay.style.display = 'flex';
+            
+            if (win) {
+                box.className = 'result-win';
+                title.innerText = "🏆 挑戰成功";
+                title.style.color = "var(--neon-gold)";
+                msg.innerText = "你的反應速度已經超越了凡人的境界！";
+            } else {
+                box.className = 'result-lose';
+                title.innerText = "⌛ 挑戰失敗";
+                title.style.color = "var(--neon-red)";
+                msg.innerText = "在這個難度面前，還需要更多的練習。";
+            }
+        }
+    </script>
+</body>
+</html>
