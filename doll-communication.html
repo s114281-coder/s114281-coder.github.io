@@ -3,164 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七分極限挑戰賽 - 穩定版</title>
+    <title>七分極限挑戰賽 - 按鈕進化版</title>
     <style>
         :root {
-            --bg: #0a0a1a;
+            --bg: #050510;
             --neon-blue: #00d2ff;
             --neon-red: #ff0033;
             --neon-gold: #ffcc00;
+            --neon-green: #39ff14;
         }
 
         body {
             background-color: var(--bg);
-            background-image: radial-gradient(circle, #1a1a3a 0%, #050510 100%);
+            background-image: linear-gradient(135deg, #050510 0%, #0d0d2b 100%);
             color: white;
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            user-select: none;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            margin: 0; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; overflow: hidden; user-select: none;
         }
 
         h1 {
-            font-size: 3rem;
-            margin: 20px 0;
-            color: var(--neon-blue);
-            text-shadow: 0 0 15px rgba(0, 210, 255, 0.7);
+            font-size: 3.2rem; margin: 40px 0; font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.5));
+            letter-spacing: 4px;
         }
 
-        /* 核心容器 - 預設隱藏 */
         .container {
-            width: 90%;
-            max-width: 900px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 30px;
-            display: none; /* 重要：由 .active 控制 */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 90%; max-width: 600px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px; padding: 40px; display: none;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
+        .container.active { display: block !important; }
 
-        /* 強制顯示類別 */
-        .container.active {
-            display: block !important;
-        }
+        /* --- 終極難度按鈕設計 --- */
+        .diff-group { display: flex; flex-direction: column; gap: 20px; }
 
-        /* 選角格線 */
-        .role-grid {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .role-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
-            width: 180px;
-            cursor: pointer;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .role-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--neon-blue);
-            background: rgba(0, 210, 255, 0.1);
-        }
-
-        .char-circle {
-            width: 70px; height: 70px; border-radius: 50%;
-            margin: 0 auto 15px;
-            box-shadow: 0 0 15px currentColor;
-        }
-
-        /* 難度按鈕 */
         .diff-btn {
-            width: 100%; padding: 20px; margin: 10px 0;
-            border: none; border-radius: 12px;
-            font-size: 1.4rem; font-weight: bold; cursor: pointer; color: white;
+            position: relative;
+            width: 100%;
+            padding: 24px;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            letter-spacing: 4px;
+            text-align: left;
+            padding-left: 40px;
+            background: #111;
         }
-        .b-easy { background: #27ae60; }
-        .b-med { background: #f39c12; }
-        .b-hard { background: #e74c3c; }
 
-        /* 遊戲舞台 */
+        /* 按鈕左邊的小裝飾條 */
+        .diff-btn::before {
+            content: ''; position: absolute; left: 0; top: 0;
+            width: 8px; height: 100%;
+            background: currentColor;
+        }
+
+        /* 內部掃描線動畫 */
+        .diff-btn::after {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(0deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 51%);
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan { from { transform: translateY(-50%); } to { transform: translateY(50%); } }
+
+        /* 難度配色設定 */
+        .b-easy { color: var(--neon-green); border: 1px solid rgba(57, 255, 20, 0.3); }
+        .b-med { color: var(--neon-gold); border: 1px solid rgba(255, 204, 0, 0.3); }
+        .b-hard { color: var(--neon-red); border: 1px solid rgba(255, 0, 51, 0.3); }
+
+        .diff-btn:hover {
+            transform: scale(1.02) translateX(10px);
+            box-shadow: -10px 0 20px currentColor;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-subtext {
+            display: block; font-size: 0.9rem; font-weight: 300;
+            color: rgba(255,255,255,0.5); letter-spacing: 1px; margin-top: 4px;
+        }
+
+        /* --- 選角卡片優化 --- */
+        .role-grid { display: flex; justify-content: space-around; gap: 15px; }
+        .role-card {
+            background: #111; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 20px; width: 150px; cursor: pointer;
+            transition: 0.3s; text-align: center;
+        }
+        .role-card:hover { border-color: var(--neon-blue); transform: scale(1.05); }
+        .char-circle { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 10px; box-shadow: 0 0 15px currentColor; }
+
+        /* --- 遊戲主舞台 --- */
         #game-stage {
-            width: 100%; height: 60vh; background: #000;
-            border-radius: 20px; border: 2px solid #333;
-            position: relative; overflow: hidden; cursor: crosshair;
+            width: 100%; height: 60vh; background: #000; border-radius: 30px;
+            border: 2px solid rgba(255,255,255,0.05); position: relative; overflow: hidden;
+            box-shadow: inset 0 0 100px rgba(0,0,0,1);
         }
+        #target { width: 80px; height: 80px; border-radius: 50%; position: absolute; display: none; z-index: 10; border: 4px solid #fff; }
 
-        #target {
-            width: 80px; height: 80px; border-radius: 50%;
-            position: absolute; display: none; z-index: 10;
-            border: 3px solid #fff;
-        }
+        .info-panel { display: flex; justify-content: space-around; font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; }
 
-        .info-panel {
-            display: flex; justify-content: space-around;
-            font-size: 2rem; margin-bottom: 10px; font-weight: bold;
-        }
-
-        /* 扣分特效 */
-        .miss-popup {
-            position: absolute; color: var(--neon-red); font-size: 2.5rem;
-            font-weight: 900; pointer-events: none;
-            animation: moveUp 0.5s ease-out forwards;
-        }
-        @keyframes moveUp { from { opacity: 1; transform: translate(-50%, -50%); } to { opacity: 0; transform: translate(-50%, -150%); } }
-
-        /* 結算彈窗 */
+        /* 結算 */
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none;
-            align-items: center; justify-content: center; z-index: 1000;
+            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
         }
         #result-box {
-            background: #1a1a1a; padding: 40px; border-radius: 20px;
-            text-align: center; border: 3px solid var(--neon-blue);
+            background: #0a0a0a; padding: 50px; border-radius: 30px; text-align: center;
+            border: 2px solid var(--neon-blue); box-shadow: 0 0 50px rgba(0, 210, 255, 0.2);
         }
     </style>
 </head>
 <body>
 
-    <h1>七分極限挑戰賽</h1>
+    <h1>NEURAL REACTION</h1>
 
     <div id="step1" class="container active">
-        <h2 style="text-align:center;">請選擇你的英雄</h2>
+        <p style="text-align:center; color: #555; text-transform: uppercase;">Select Identity</p>
         <div class="role-grid">
             <div class="role-card" onclick="setRole('gold')">
                 <div class="char-circle" style="background: gold; color: gold;"></div>
-                <b>黃金英雄</b>
+                <b>HERO</b>
             </div>
             <div class="role-card" onclick="setRole('cyan')">
                 <div class="char-circle" style="background: cyan; color: cyan;"></div>
-                <b>青藍忍者</b>
+                <b>NINJA</b>
             </div>
             <div class="role-card" onclick="setRole('magenta')">
                 <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
-                <b>桃紅刺客</b>
+                <b>ELITE</b>
             </div>
         </div>
     </div>
 
     <div id="step2" class="container">
-        <h2 style="text-align:center;">選擇挑戰難度</h2>
-        <button class="diff-btn b-easy" onclick="start(35, 1000)">入門模式 [1.0秒]</button>
-        <button class="diff-btn b-med" onclick="start(30, 800)">高手模式 [0.8秒]</button>
-        <button class="diff-btn b-hard" onclick="start(25, 600)">巔峰模式 [0.6秒]</button>
+        <p style="text-align:center; color: #555; text-transform: uppercase;">System Ready... Select Difficulty</p>
+        <div class="diff-group">
+            <button class="diff-btn b-easy" onclick="start(35, 1000)">
+                初級訓練 <span class="btn-subtext">REFLEX LEVEL: BASIC (1.0s)</span>
+            </button>
+            <button class="diff-btn b-med" onclick="start(30, 800)">
+                高手進階 <span class="btn-subtext">REFLEX LEVEL: ADVANCED (0.8s)</span>
+            </button>
+            <button class="diff-btn b-hard" onclick="start(25, 600)">
+                巔峰之戰 <span class="btn-subtext">REFLEX LEVEL: GODLIKE (0.6s)</span>
+            </button>
+        </div>
+        <p onclick="location.reload()" style="text-align:center; color:#333; cursor:pointer; margin-top:30px;">ABORT MISSION</p>
     </div>
 
-    <div id="step3" class="container">
+    <div id="step3" class="container" style="max-width: 1000px;">
         <div class="info-panel">
-            <span>時間: <span id="timer">--</span>s</span>
-            <span>分數: <span id="score">0</span> / 7</span>
+            <span style="color:var(--neon-red);">TIME: <span id="timer">--</span></span>
+            <span style="color:var(--neon-blue);">SCORE: <span id="score">0</span>/7</span>
         </div>
         <div id="game-stage">
             <div id="target"></div>
@@ -169,19 +175,14 @@
 
     <div id="result-overlay">
         <div id="result-box">
-            <h2 id="res-title" style="font-size: 2.5rem;">挑戰結果</h2>
-            <p id="res-msg" style="font-size: 1.2rem; color: #ccc;"></p>
-            <button style="padding: 10px 30px; cursor: pointer;" onclick="location.reload()">重新開始</button>
+            <h2 id="res-title" style="font-size: 3rem;"></h2>
+            <p id="res-msg" style="font-size: 1.4rem; color: #888; margin-bottom: 30px;"></p>
+            <button style="background:var(--neon-blue); border:none; padding:15px 40px; font-weight:bold; cursor:pointer; border-radius:5px;" onclick="location.reload()">REBOOT SYSTEM</button>
         </div>
     </div>
 
     <script>
         let pColor = "", pScore = 0, pTime = 0, active = false, moveTimer;
-
-        // 確保畫面加載後顯示第一步
-        window.onload = function() {
-            document.getElementById('step1').classList.add('active');
-        };
 
         function setRole(c) {
             pColor = (c === 'magenta') ? '#ff007f' : c;
@@ -193,19 +194,13 @@
             pTime = sec; pScore = 0; active = true;
             document.getElementById('step2').classList.remove('active');
             document.getElementById('step3').classList.add('active');
-
             const ball = document.getElementById('target');
             ball.style.backgroundColor = pColor;
-            ball.style.boxShadow = `0 0 30px ${pColor}`;
+            ball.style.boxShadow = `0 0 40px ${pColor}`;
             ball.style.display = 'block';
-
             const countdown = setInterval(() => {
-                pTime--;
-                document.getElementById('timer').innerText = pTime;
-                if (pTime <= 0) {
-                    clearInterval(countdown);
-                    if (active) end(false);
-                }
+                pTime--; document.getElementById('timer').innerText = pTime;
+                if (pTime <= 0) { clearInterval(countdown); if (active) end(false); }
             }, 1000);
             jump(speed);
         }
@@ -214,29 +209,20 @@
             if (!active) return;
             const stage = document.getElementById('game-stage');
             const ball = document.getElementById('target');
-            const x = Math.random() * (stage.clientWidth - 85);
-            const y = Math.random() * (stage.clientHeight - 85);
-            ball.style.left = x + "px";
-            ball.style.top = y + "px";
+            ball.style.left = Math.random() * (stage.clientWidth - 85) + "px";
+            ball.style.top = Math.random() * (stage.clientHeight - 85) + "px";
             moveTimer = setTimeout(() => jump(speed), speed);
         }
 
-        // 擊中球
         document.getElementById('target').onmousedown = function(e) {
-            e.stopPropagation();
-            if (!active) return;
-            pScore++;
-            document.getElementById('score').innerText = pScore;
+            e.stopPropagation(); if (!active) return;
+            pScore++; document.getElementById('score').innerText = pScore;
             if (pScore >= 7) end(true);
         };
 
-        // 沒擊中 (扣分)
         document.getElementById('game-stage').onmousedown = function(e) {
             if (!active) return;
-            if (pScore > 0) {
-                pScore--;
-                document.getElementById('score').innerText = pScore;
-            }
+            if (pScore > 0) { pScore--; document.getElementById('score').innerText = pScore; }
             showMiss(e.clientX, e.clientY);
         };
 
@@ -244,29 +230,29 @@
             const stage = document.getElementById('game-stage');
             const rect = stage.getBoundingClientRect();
             const popup = document.createElement('div');
-            popup.className = 'miss-popup';
+            popup.style.position = 'absolute';
+            popup.style.color = 'var(--neon-red)';
+            popup.style.fontSize = '2rem';
+            popup.style.fontWeight = '900';
             popup.innerText = '-1';
             popup.style.left = (x - rect.left) + 'px';
             popup.style.top = (y - rect.top) + 'px';
+            popup.style.pointerEvents = 'none';
             stage.appendChild(popup);
-            setTimeout(() => popup.remove(), 500);
+            setTimeout(() => popup.remove(), 400);
         }
 
         function end(win) {
-            active = false;
-            clearTimeout(moveTimer);
-            const overlay = document.getElementById('result-overlay');
-            const box = document.getElementById('result-box');
-            overlay.style.display = 'flex';
-            
+            active = false; clearTimeout(moveTimer);
+            document.getElementById('result-overlay').style.display = 'flex';
             if (win) {
-                box.style.borderColor = "var(--neon-gold)";
-                document.getElementById('res-title').innerText = "🏆 挑戰成功";
-                document.getElementById('res-msg').innerText = "你的反應力相當出色！";
+                document.getElementById('res-title').innerText = "SUCCESS";
+                document.getElementById('res-title').style.color = "var(--neon-gold)";
+                document.getElementById('res-msg').innerText = "反應神經已達標。系統已記錄。";
             } else {
-                box.style.borderColor = "var(--neon-red)";
-                document.getElementById('res-title').innerText = "⌛ 挑戰失敗";
-                document.getElementById('res-msg').innerText = "再試一次，你一定可以的。";
+                document.getElementById('res-title').innerText = "FAILED";
+                document.getElementById('res-title').style.color = "var(--neon-red)";
+                document.getElementById('res-msg').innerText = "反應低於預期。請重新訓練。";
             }
         }
     </script>
