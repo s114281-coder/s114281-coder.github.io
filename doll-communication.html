@@ -59,4 +59,151 @@
         #result-box { width: 85%; max-width: 450px; background: #111; border: 4px solid var(--neon-blue); border-radius: 30px; padding: 40px; text-align: center; box-shadow: 0 0 50px rgba(0, 210, 255, 0.4); animation: modalPop 0.3s ease-out; }
         @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .result-win { border-color: var(--neon-gold) !important
+        .result-win { border-color: var(--neon-gold) !important; box-shadow: 0 0 50px rgba(255, 204, 0, 0.4) !important; }
+        .result-lose { border-color: var(--neon-red) !important; box-shadow: 0 0 50px rgba(255, 0, 51, 0.4) !important; }
+        .res-title { font-size: 2.8rem; font-weight: 900; margin-bottom: 15px; }
+        .res-msg { font-size: 1.3rem; margin-bottom: 30px; color: #bbb; line-height: 1.6; }
+        .res-btn { background: var(--neon-blue); color: #000; border: none; padding: 15px 45px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .res-btn:hover { transform: scale(1.1); background: #fff; }
+    </style>
+</head>
+<body>
+
+    <h1>七分極限挑戰賽</h1>
+
+    <div id="step1" class="container active">
+        <h2 style="text-align:center; color: #888; margin-bottom: 30px;">選擇你的英雄卡片</h2>
+        <div class="role-grid">
+            <div class="role-card" onclick="setRole('gold')">
+                <div class="char-circle" style="background: gold; color: gold;"></div>
+                <b>黃金英雄</b>
+            </div>
+            <div class="role-card" onclick="setRole('cyan')">
+                <div class="char-circle" style="background: cyan; color: cyan;"></div>
+                <b>青藍忍者</b>
+            </div>
+            <div class="role-card" onclick="setRole('magenta')">
+                <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
+                <b>桃紅刺客</b>
+            </div>
+        </div>
+    </div>
+
+    <div id="step2" class="container" style="max-width: 550px;">
+        <h2 style="text-align:center; color: var(--neon-blue);">請選擇挑戰等級</h2>
+        <button class="diff-btn b-easy" onclick="start(35, 1000)">入門挑戰 [35秒 / 1.0秒]</button>
+        <button class="diff-btn b-med" onclick="start(30, 800)">高手進階 [30秒 / 0.8秒]</button>
+        <button class="diff-btn b-hard" onclick="start(25, 600)">巔峰對決 [25秒 / 0.6秒]</button>
+        <p onclick="location.reload()" style="text-align:center; color:#555; cursor:pointer; margin-top:20px;">← 返回重新選擇</p>
+    </div>
+
+    <div id="step3" class="container" style="max-width: 1200px; width: 98%;">
+        <div class="info-panel">
+            <span>⌛ <span id="timer">--</span>s</span>
+            <span>🎯 <span id="score">0</span> / 7</span>
+        </div>
+        <div id="game-stage">
+            <div id="target"></div>
+        </div>
+    </div>
+
+    <div id="result-overlay">
+        <div id="result-box">
+            <div id="res-title" class="res-title">挑戰結束</div>
+            <div id="res-msg" class="res-msg">結果訊息</div>
+            <button class="res-btn" onclick="location.reload()">再試一次</button>
+        </div>
+    </div>
+
+    <script>
+        let pColor = "", pScore = 0, pTime = 0, active = false, moveTimer;
+
+        function setRole(c) {
+            pColor = (c === 'magenta') ? '#ff007f' : c;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        }
+
+        function start(sec, speed) {
+            pTime = sec; pScore = 0; active = true;
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+
+            const ball = document.getElementById('target');
+            ball.style.backgroundColor = pColor;
+            ball.style.boxShadow = `0 0 40px ${pColor}, inset 0 0 10px #fff`;
+            ball.style.display = 'block';
+
+            const countdown = setInterval(() => {
+                pTime--;
+                document.getElementById('timer').innerText = pTime;
+                if (pTime <= 0) {
+                    clearInterval(countdown);
+                    if (active) end(false);
+                }
+            }, 1000);
+            jump(speed);
+        }
+
+        function jump(speed) {
+            if (!active) return;
+            const stage = document.getElementById('game-stage');
+            const ball = document.getElementById('target');
+            const x = Math.random() * (stage.clientWidth - 95);
+            const y = Math.random() * (stage.clientHeight - 95);
+            ball.style.left = x + "px";
+            ball.style.top = y + "px";
+            moveTimer = setTimeout(() => jump(speed), speed);
+        }
+
+        // 加分
+        document.getElementById('target').onmousedown = function(e) {
+            e.stopPropagation();
+            if (!active) return;
+            pScore++;
+            document.getElementById('score').innerText = pScore;
+            this.style.transform = "scale(0.8)";
+            setTimeout(() => this.style.transform = "scale(1)", 100);
+            if (pScore >= 7) end(true);
+        };
+
+        // 扣分
+        document.getElementById('game-stage').onmousedown = function(e) {
+            if (!active) return;
+            if (pScore > 0) { pScore--; document.getElementById('score').innerText = pScore; }
+            showMiss(e.clientX, e.clientY);
+        };
+
+        function showMiss(x, y) {
+            const stage = document.getElementById('game-stage');
+            const rect = stage.getBoundingClientRect();
+            const popup = document.createElement('div');
+            popup.className = 'miss-popup';
+            popup.innerText = '-1';
+            popup.style.left = (x - rect.left) + 'px';
+            popup.style.top = (y - rect.top) + 'px';
+            stage.appendChild(popup);
+            setTimeout(() => popup.remove(), 500);
+        }
+
+        function end(win) {
+            active = false;
+            clearTimeout(moveTimer);
+            const overlay = document.getElementById('result-overlay');
+            const box = document.getElementById('result-box');
+            overlay.style.display = 'flex';
+            if (win) {
+                box.className = 'result-win';
+                document.getElementById('res-title').innerText = "🏆 挑戰成功";
+                document.getElementById('res-title').style.color = "var(--neon-gold)";
+                document.getElementById('res-msg').innerText = "太強了！你成功在時限內擊中 7 次目標！";
+            } else {
+                box.className = 'result-lose';
+                document.getElementById('res-title').innerText = "⌛ 挑戰失敗";
+                document.getElementById('res-title').style.color = "var(--neon-red)";
+                document.getElementById('res-msg').innerText = "可惜！看來這個速度還需要一點點適應。";
+            }
+        }
+    </script>
+</body>
+</html>
