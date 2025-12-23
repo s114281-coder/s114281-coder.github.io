@@ -1,9 +1,9 @@
-   <DOCTYPE ht>
-<html lang="zh-TW"
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>反應點擊遊戲</title>
+    <title>反應挑戰：五分制與倒扣機制</title>
     <style>
         /* -------------------- CSS 樣式 -------------------- */
         
@@ -13,92 +13,106 @@
             flex-direction: column;
             align-items: center;
             padding-top: 30px;
-            background-color: #f0f8ff; /* 淺藍色背景 */
+            background-color: #fce4ec; /* 淺粉色背景 */
+            user-select: none; /* 防止快速點擊時選取到文字 */
         }
 
-        /* 遊戲舞台 */
         #game-area {
             position: relative;
             width: 600px;
-            height: 400px;
-            border: 5px solid #4682b4; /* 鋼藍色邊框 */
-            background-color: #e6e6fa; /* 薰衣草背景 */
+            height: 450px;
+            border: 5px solid #d81b60;
+            background-color: #ffffff;
             overflow: hidden;
-            cursor: crosshair; /* 鼠標變為十字準星 */
+            cursor: crosshair;
             margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        /* 隨機移動的物體 */
+        /* 遊戲物體 (可以是圖片或圓形) */
         #target-object {
             position: absolute;
-            width: 50px;
-            height: 50px;
-            background-color: #ff6347; /* 番茄紅 */
-            border-radius: 50%; /* 圓形 */
+            width: 60px; /* 這裡調整物體寬度 */
+            height: 60px; /* 這裡調整物體高度 */
             cursor: pointer;
-            transition: opacity 0.3s; /* 讓物體消失時有淡出效果 */
-            opacity: 1;
-            /* 初始隱藏，直到遊戲開始 */
-            display: none; 
+            z-index: 10;
+            display: none;
+            /* 如果您沒有圖片，這行會顯示一個暫時的圓形 */
+            background-color: #ff4081;
+            border-radius: 50%;
         }
 
-        /* 資訊面板 */
         #info {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #880e4f;
+            font-weight: bold;
         }
-        
-        /* 開始按鈕 */
+
         #start-button {
-            padding: 10px 20px;
+            padding: 12px 30px;
             font-size: 1.2em;
             cursor: pointer;
-            background-color: #3cb371; /* 中海綠 */
+            background-color: #d81b60;
             color: white;
             border: none;
-            border-radius: 5px;
-            transition: background-color 0.2s;
+            border-radius: 25px;
+            margin-bottom: 10px;
         }
-        
-        #start-button:hover {
-            background-color: #2e8b57;
+
+        #start-button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
         }
-        
-        /* 勝利訊息 */
+
         #win-message {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffeb3b;
             font-size: 3em;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            display: none; /* 初始隱藏 */
-            z-index: 20;
-            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+
+        /* 倒扣特效提示 */
+        .minus-point {
+            position: absolute;
+            color: red;
+            font-weight: bold;
+            font-size: 1.5em;
+            animation: fadeUp 0.5s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-30px); }
         }
     </style>
 </head>
 <body>
 
-    <h1>反應點擊遊戲</h1>
+    <h1>🎯 精準點擊挑戰</h1>
 
-    <div id="info">分數：<span id="score">0</span> / 3</div>
+    <div id="info">分數：<span id="score">0</span> / 5</div>
     
     <button id="start-button">開始遊戲</button>
 
     <div id="game-area">
-        <img id="target-object" src="your_target_image.png" alt="遊戲目標物">
+        <div id="target-object"></div>
+
         <div id="win-message">
-            恭喜您獲勝！🎉
-            <button onclick="window.location.reload()" style="padding: 10px; font-size: 0.5em; margin-top: 20px; cursor: pointer;">再玩一次</button>
+            恭喜獲勝！🏆
+            <button onclick="window.location.reload()" style="margin-top:20px; padding:10px 20px; font-size: 0.4em;">重新挑戰</button>
         </div>
     </div>
+
+    <p>提示：點擊背景會扣分喔！</p>
 
     <script>
         /* -------------------- JavaScript 邏輯 -------------------- */
@@ -109,70 +123,87 @@
         const START_BUTTON = document.getElementById('start-button');
         const WIN_MESSAGE = document.getElementById('win-message');
         
-        const WIN_SCORE = 3;
+        const WIN_SCORE = 5;
         let score = 0;
         let intervalId;
-        
-        // 獲取舞台的寬高，用於計算隨機位置
-        const areaWidth = GAME_AREA.clientWidth;
-        const areaHeight = GAME_AREA.clientHeight;
-        const targetSize = TARGET.clientWidth; 
+        let isGameRunning = false;
 
-        // --- 核心函式：隨機移動物體 ---
+        // 1. 移動物體的函式
         function moveTarget() {
-            // 計算物體可以移動的最大範圍 (需減去物體自身大小)
-            const maxX = areaWidth - targetSize;
-            const maxY = areaHeight - targetSize;
+            const maxX = GAME_AREA.clientWidth - TARGET.offsetWidth;
+            const maxY = GAME_AREA.clientHeight - TARGET.offsetHeight;
 
-            // 隨機產生 X 和 Y 座標
             const randomX = Math.floor(Math.random() * maxX);
             const randomY = Math.floor(Math.random() * maxY);
 
-            // 將物體移動到新位置
             TARGET.style.left = `${randomX}px`;
             TARGET.style.top = `${randomY}px`;
         }
 
-        // --- 點擊處理函式 ---
-        function handleTargetClick() {
-            if (score < WIN_SCORE) {
-                score++;
-                SCORE_DISPLAY.textContent = score;
-                
-                // 點擊後，讓物體立即移動到新位置，模擬「被打中消失」
-                moveTarget(); 
-            }
+        // 2. 點擊物體 (得分)
+        TARGET.addEventListener('click', (event) => {
+            event.stopPropagation(); // ❗ 重要：防止點擊事件傳遞給背景導致扣分
+            
+            if (!isGameRunning) return;
 
-            if (score === WIN_SCORE) {
-                clearInterval(intervalId); // 停止隨機移動
-                TARGET.style.display = 'none'; // 隱藏物體
-                WIN_MESSAGE.style.display = 'flex'; // 顯示勝利訊息
-                START_BUTTON.textContent = '遊戲結束';
-                START_BUTTON.disabled = true;
-            }
-        }
+            score++;
+            updateScore();
+            moveTarget(); // 點中後立即換位置
+        });
 
-        // --- 遊戲開始函式 ---
-        function startGame() {
-            score = 0;
+        // 3. 點擊背景 (倒扣)
+        GAME_AREA.addEventListener('click', (event) => {
+            if (!isGameRunning) return;
+
+            // 只有在分數大於 0 時才扣分
+            if (score > 0) {
+                score--;
+                updateScore();
+                showMinusEffect(event.clientX, event.clientY);
+            }
+        });
+
+        // 4. 更新分數與檢查勝利
+        function updateScore() {
             SCORE_DISPLAY.textContent = score;
-            START_BUTTON.disabled = true;
-            START_BUTTON.textContent = '遊戲進行中...';
-            WIN_MESSAGE.style.display = 'none';
-            TARGET.style.display = 'block';
-
-            // 初始移動一次
-            moveTarget(); 
-
-            // 設定計時器：每 1000 毫秒（1 秒）隨機移動一次
-            // 您可以調整這個數值來改變遊戲難度 (數值越小，移動越快，難度越高)
-            const moveInterval = 1000; 
-            intervalId = setInterval(moveTarget, moveInterval);
+            if (score >= WIN_SCORE) {
+                endGame();
+            }
         }
 
-        // --- 事件監聽器 ---
-        START_BUTTON.addEventListener('click', startGame);
-        TARGET.addEventListener('click', handleTargetClick);
+        // 5. 顯示倒扣小特效
+        function showMinusEffect(x, y) {
+            const effect = document.createElement('div');
+            effect.className = 'minus-point';
+            effect.textContent = '-1';
+            effect.style.left = `${x - GAME_AREA.getBoundingClientRect().left}px`;
+            effect.style.top = `${y - GAME_AREA.getBoundingClientRect().top}px`;
+            GAME_AREA.appendChild(effect);
+            setTimeout(() => effect.remove(), 500);
+        }
+
+        // 6. 開始遊戲
+        START_BUTTON.addEventListener('click', () => {
+            score = 0;
+            updateScore();
+            isGameRunning = true;
+            START_BUTTON.disabled = true;
+            START_BUTTON.textContent = "加油！";
+            TARGET.style.display = 'block';
+            moveTarget();
+            
+            // 每 1.2 秒自動跳動一次 (您可以縮短時間增加難度)
+            intervalId = setInterval(moveTarget, 1200);
+        });
+
+        // 7. 結束遊戲
+        function endGame() {
+            isGameRunning = false;
+            clearInterval(intervalId);
+            TARGET.style.display = 'none';
+            WIN_MESSAGE.style.display = 'flex';
+        }
+
     </script>
 </body>
 </html>
