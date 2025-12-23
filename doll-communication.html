@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七分極限挑戰賽 - 三角色版</title>
+    <title>七分極限挑戰賽 - 進階難度</title>
     <style>
         :root {
             --bg: #050508;
             --neon-blue: #00d2ff;
-            --glass: rgba(255, 255, 255, 0.07);
+            --neon-pink: #ff007f;
+            --glass: rgba(255, 255, 255, 0.08);
         }
 
         body {
             background: var(--bg);
             background-image: radial-gradient(circle at 50% 50%, #111122 0%, #050508 100%);
             color: white;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -25,52 +26,60 @@
         }
 
         h1 {
-            font-size: 3rem;
-            margin: 20px 0;
+            font-size: 3.5rem;
+            margin: 25px 0;
+            letter-spacing: 5px;
             color: var(--neon-blue);
             text-shadow: 0 0 20px rgba(0, 210, 255, 0.8);
         }
 
-        /* 核心容器 */
         .container {
             width: 95%;
             max-width: 1000px;
             background: var(--glass);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 30px;
-            padding: 30px;
+            padding: 40px;
             display: none;
-            animation: fadeIn 0.4s ease;
+            animation: slideUp 0.4s ease-out;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
         }
 
         .active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        /* 角色選擇區 - 確保三個都會出現 */
-        .role-selection {
-            display: flex; /* 改用 Flexbox 確保橫向排列 */
-            justify-content: center;
+        /* 角色選擇區 - 強制三列排列 */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            flex-wrap: wrap; /* 如果螢幕太窄會自動換行 */
+            margin-top: 20px;
         }
         
+        @media (max-width: 600px) {
+            .role-grid { grid-template-columns: 1fr; } /* 手機版改為直列 */
+        }
+
         .role-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 3px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            width: 200px; /* 固定寬度確保不會消失 */
-            padding: 30px 10px;
+            padding: 35px 15px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
         }
 
         .role-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-10px) scale(1.05);
             border-color: var(--neon-blue);
-            background: rgba(0, 210, 255, 0.1);
+            background: rgba(0, 210, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
         }
 
         .char-circle {
@@ -79,30 +88,66 @@
             box-shadow: 0 0 20px currentColor;
         }
 
-        /* 難度按鈕 */
-        .diff-btn {
-            width: 100%; padding: 20px; margin: 10px 0;
-            border: none; border-radius: 15px;
-            font-size: 1.4rem; font-weight: bold; cursor: pointer; color: white;
-        }
-        .b-easy { background: #2ecc71; }
-        .b-med { background: #f1c40f; }
-        .b-hard { background: #e74c3c; }
+        .role-name { font-size: 1.4rem; font-weight: bold; }
 
-        /* 遊戲舞台 */
+        /* 難度按鈕 - 更新配色與間距 */
+        .diff-btn {
+            width: 100%;
+            padding: 22px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .diff-btn:hover { filter: brightness(1.2); transform: scale(1.02); }
+        .b-easy { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+        .b-med { background: linear-gradient(90deg, #f1c40f, #d35400); }
+        .b-hard { background: linear-gradient(90deg, #e74c3c, #8e44ad); }
+
+        /* 遊戲大舞台 */
         #game-stage {
-            width: 100%; height: 60vh; background: #000;
-            border-radius: 20px; border: 3px solid #333;
-            position: relative; overflow: hidden; margin-top: 15px;
+            width: 100%;
+            height: 60vh;
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
         }
 
         #target {
-            width: 80px; height: 80px; border-radius: 50%;
-            position: absolute; cursor: pointer; display: none;
-            border: 2px solid white;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            z-index: 100;
+            display: none;
+            border: 3px solid rgba(255,255,255,0.8);
+            box-shadow: 0 0 30px rgba(255,255,255,0.5);
         }
 
-        .info { font-size: 1.8rem; margin-bottom: 10px; color: var(--neon-blue); font-weight: bold; }
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--neon-blue);
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            background: none; border: 1px solid #444; color: #888;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -110,35 +155,35 @@
     <h1>七分極限挑戰賽</h1>
 
     <div id="step1" class="container active">
-        <h2 style="text-align:center; color: #888;">請選擇你的參賽角色</h2>
-        <div class="role-selection">
-            <div class="role-card" onclick="selectChar('gold')">
+        <h2 style="text-align:center; color: #aaa; margin-bottom: 25px;">SELECT YOUR HERO</h2>
+        <div class="role-grid">
+            <div class="role-card" onclick="setRole('gold')">
                 <div class="char-circle" style="background: gold; color: gold;"></div>
-                <div style="font-size: 1.2rem; font-weight: bold;">黃金英雄</div>
+                <div class="role-name">黃金英雄</div>
             </div>
-            <div class="role-card" onclick="selectChar('cyan')">
+            <div class="role-card" onclick="setRole('cyan')">
                 <div class="char-circle" style="background: cyan; color: cyan;"></div>
-                <div style="font-size: 1.2rem; font-weight: bold;">青藍忍者</div>
+                <div class="role-name">青藍忍者</div>
             </div>
-            <div class="role-card" onclick="selectChar('magenta')">
+            <div class="role-card" onclick="setRole('magenta')">
                 <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
-                <div style="font-size: 1.2rem; font-weight: bold;">桃紅刺客</div>
+                <div class="role-name">桃紅刺客</div>
             </div>
         </div>
     </div>
 
-    <div id="step2" class="container" style="max-width: 500px;">
-        <h2 style="text-align:center;">選擇挑戰難度</h2>
-        <button class="diff-btn b-easy" onclick="gameStart(40, 1600)">簡單模式 (40s)</button>
-        <button class="diff-btn b-med" onclick="gameStart(45, 1100)">中等模式 (45s)</button>
-        <button class="diff-btn b-hard" onclick="gameStart(50, 750)">困難模式 (50s)</button>
-        <p onclick="location.reload()" style="cursor:pointer; color:#555; text-align:center;">← 返回重選角色</p>
+    <div id="step2" class="container" style="max-width: 550px;">
+        <h2 style="text-align:center; color: #aaa;">CHOOSE SPEED</h2>
+        <button class="diff-btn b-easy" onclick="start(30, 1000)">初級挑戰 (30s / 快)</button>
+        <button class="diff-btn b-med" onclick="start(35, 750)">專業極限 (35s / 極快)</button>
+        <button class="diff-btn b-hard" onclick="start(40, 550)">傳說之速 (40s / 閃現)</button>
+        <div style="text-align:center;"><button class="back-btn" onclick="location.reload()">← 返回重選</button></div>
     </div>
 
     <div id="step3" class="container" style="max-width: 1200px;">
-        <div class="info" style="display:flex; justify-content: space-around;">
-            <span>剩餘時間: <span id="timer">--</span>s</span>
-            <span>得分: <span id="score">0</span> / 7</span>
+        <div class="info-panel">
+            <span>⌛ <span id="timer">--</span>s</span>
+            <span>🎯 <span id="score">0</span> / 7</span>
         </div>
         <div id="game-stage">
             <div id="target"></div>
@@ -146,60 +191,74 @@
     </div>
 
     <script>
-        let charColor = "";
-        let score = 0;
-        let time = 0;
-        let isPlaying = false;
-        let jumpTimer;
+        let pColor = "";
+        let pScore = 0;
+        let pTime = 0;
+        let active = false;
+        let moveTimer;
 
-        function selectChar(c) {
-            charColor = (c === 'magenta') ? '#ff007f' : c;
+        function setRole(c) {
+            pColor = (c === 'magenta') ? '#ff007f' : c;
             document.getElementById('step1').classList.remove('active');
             document.getElementById('step2').classList.add('active');
         }
 
-        function gameStart(sec, spd) {
-            time = sec; score = 0; isPlaying = true;
+        function start(sec, speed) {
+            pTime = sec; pScore = 0; active = true;
             document.getElementById('step2').classList.remove('active');
             document.getElementById('step3').classList.add('active');
 
             const ball = document.getElementById('target');
-            ball.style.backgroundColor = charColor;
-            ball.style.boxShadow = `0 0 30px ${charColor}`;
+            ball.style.backgroundColor = pColor;
+            ball.style.boxShadow = `0 0 40px ${pColor}`;
             ball.style.display = 'block';
 
-            const cd = setInterval(() => {
-                time--;
-                document.getElementById('timer').innerText = time;
-                if (time <= 0) {
-                    clearInterval(cd);
-                    if (isPlaying) finish(false);
+            const countdown = setInterval(() => {
+                pTime--;
+                document.getElementById('timer').innerText = pTime;
+                if (pTime <= 0) {
+                    clearInterval(countdown);
+                    if (active) end(false);
                 }
             }, 1000);
-            move(spd);
+            jump(speed);
         }
 
-        function move(spd) {
-            if (!isPlaying) return;
+        function jump(speed) {
+            if (!active) return;
             const stage = document.getElementById('game-stage');
             const ball = document.getElementById('target');
-            ball.style.left = Math.random() * (stage.clientWidth - 85) + "px";
-            ball.style.top = Math.random() * (stage.clientHeight - 85) + "px";
-            jumpTimer = setTimeout(() => move(spd), spd);
+            
+            // 計算隨機位置
+            const x = Math.random() * (stage.clientWidth - 85);
+            const y = Math.random() * (stage.clientHeight - 85);
+            
+            ball.style.left = x + "px";
+            ball.style.top = y + "px";
+            
+            moveTimer = setTimeout(() => jump(speed), speed);
         }
 
-        document.getElementById('target').onmousedown = function() {
-            if (!isPlaying) return;
-            score++;
-            document.getElementById('score').innerText = score;
-            if (score >= 7) finish(true);
-        };
+        // 點擊事件
+        document.getElementById('target').addEventListener('mousedown', function(e) {
+            if (!active) return;
+            pScore++;
+            document.getElementById('score').innerText = pScore;
+            
+            // 點擊視覺反饋
+            this.style.transform = 'scale(0.8)';
+            setTimeout(() => this.style.transform = 'scale(1)', 100);
 
-        function finish(win) {
-            isPlaying = false;
-            clearTimeout(jumpTimer);
-            alert(win ? "🏆 恭喜通關！" : "⌛ 時間到，失敗！");
-            location.reload();
+            if (pScore >= 7) end(true);
+        });
+
+        function end(win) {
+            active = false;
+            clearTimeout(moveTimer);
+            setTimeout(() => {
+                alert(win ? "🏆 挑戰成功！你的反應速度驚人！" : "⌛ 時間到！這難度對你來說還太快了嗎？");
+                location.reload();
+            }, 100);
         }
     </script>
 </body>
