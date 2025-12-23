@@ -160,3 +160,111 @@
             <div class="role-card" onclick="selectChar('gold')">
                 <div class="char-circle" style="background: gold; color: gold;"></div>
                 <div class="role-name">黃金英雄</div>
+            </div>
+            <div class="role-card" onclick="selectChar('cyan')">
+                <div class="char-circle" style="background: cyan; color: cyan;"></div>
+                <div class="role-name">青藍忍者</div>
+            </div>
+            <div class="role-card" onclick="selectChar('magenta')">
+                <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
+                <div class="role-name">桃紅刺客</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="step2" class="container" style="max-width: 600px;">
+        <h2 style="text-align:center; color: #aaa; margin-bottom: 30px;">SELECT DIFFICULTY</h2>
+        <button class="diff-btn b-easy" onclick="gameStart(40, 1600)">簡單模式 [40秒]</button>
+        <button class="diff-btn b-med" onclick="gameStart(45, 1100)">中等模式 [45秒]</button>
+        <button class="diff-btn b-hard" onclick="gameStart(50, 750)">困難模式 [50秒]</button>
+        <div style="text-align:center;">
+            <button class="footer-btn" onclick="location.reload()">BACK TO CHARACTERS</button>
+        </div>
+    </div>
+
+    <div id="step3" class="container" style="width: 98%; max-width: 1400px;">
+        <div class="info-bar">
+            <span>TIME: <span id="timer" style="color:#ff007f;">--</span>s</span>
+            <span>SCORE: <span id="score">0</span> / 7</span>
+        </div>
+        <div id="game-stage">
+            <div id="target"></div>
+        </div>
+        <div style="text-align:center;">
+            <button class="footer-btn" onclick="location.reload()">QUIT CHALLENGE</button>
+        </div>
+    </div>
+
+    <script>
+        let charColor = "";
+        let score = 0;
+        let time = 0;
+        let isPlaying = false;
+        let jumpTimer;
+
+        function selectChar(c) {
+            charColor = (c === 'magenta') ? '#ff007f' : c;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        }
+
+        function gameStart(sec, spd) {
+            time = sec;
+            score = 0;
+            isPlaying = true;
+            
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+
+            const ball = document.getElementById('target');
+            ball.style.backgroundColor = charColor;
+            ball.style.boxShadow = `0 0 40px ${charColor}`;
+            ball.style.display = 'block';
+
+            // 倒數計時
+            const cd = setInterval(() => {
+                time--;
+                document.getElementById('timer').innerText = time;
+                if (time <= 0) {
+                    clearInterval(cd);
+                    if (isPlaying) finish(false);
+                }
+            }, 1000);
+
+            move(spd);
+        }
+
+        function move(spd) {
+            if (!isPlaying) return;
+            const stage = document.getElementById('game-stage');
+            const ball = document.getElementById('target');
+            
+            // 使用更大範圍的舞台座標
+            const maxX = stage.clientWidth - 85;
+            const maxY = stage.clientHeight - 85;
+            
+            ball.style.left = Math.random() * maxX + "px";
+            ball.style.top = Math.random() * maxY + "px";
+            
+            jumpTimer = setTimeout(() => move(spd), spd);
+        }
+
+        document.getElementById('target').onmousedown = function(e) {
+            e.preventDefault(); // 防止雙擊縮放
+            if (!isPlaying) return;
+            score++;
+            document.getElementById('score').innerText = score;
+            if (score >= 7) finish(true);
+        };
+
+        function finish(win) {
+            isPlaying = false;
+            clearTimeout(jumpTimer);
+            setTimeout(() => {
+                alert(win ? "🏆 MISSION ACCOMPLISHED!\n你已成功通關七分極限挑戰！" : "⌛ MISSION FAILED!\n挑戰失敗，請再次嘗試。");
+                location.reload();
+            }, 100);
+        }
+    </script>
+</body>
+</html>
