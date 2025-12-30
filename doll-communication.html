@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURAL REACTION - 鍵盤版</title>
+    <title>NEURAL REACTION - 九宮格版</title>
     <style>
         :root {
             --bg: #050510;
@@ -31,7 +31,7 @@
         }
 
         .container {
-            width: 90%; max-width: 700px;
+            width: 90%; max-width: 650px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 40px; padding: 40px; display: none;
@@ -39,156 +39,104 @@
         }
         .container.active { display: block !important; }
 
-        /* --- 角色選擇卡片 --- */
+        /* --- 角色卡片 --- */
         .role-grid { display: flex; justify-content: space-around; gap: 15px; }
         .role-card {
             background: #111; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; padding: 25px 15px; width: 150px; cursor: pointer;
+            border-radius: 20px; padding: 25px 15px; width: 140px; cursor: pointer;
             transition: 0.3s; text-align: center;
         }
-        .role-card:hover { 
-            border-color: var(--neon-blue); transform: scale(1.05); 
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); background: rgba(0, 210, 255, 0.05);
-        }
-        .char-circle { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 15px; box-shadow: 0 0 15px currentColor; }
-        .role-name { font-size: 1.1rem; letter-spacing: 2px; font-weight: bold; }
+        .role-card:hover { border-color: var(--neon-blue); transform: scale(1.05); background: rgba(0, 210, 255, 0.05); }
+        .char-circle { width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 15px; box-shadow: 0 0 15px currentColor; }
 
         /* --- 難度按鈕 --- */
-        .diff-group { display: flex; flex-direction: column; gap: 20px; }
+        .diff-group { display: flex; flex-direction: column; gap: 15px; }
         .diff-btn {
-            position: relative; width: 100%; padding: 24px; font-size: 1.6rem;
+            position: relative; width: 100%; padding: 20px; font-size: 1.4rem;
             font-weight: 900; color: #fff; border: none; border-radius: 12px;
-            cursor: pointer; transition: all 0.3s; overflow: hidden;
-            letter-spacing: 4px; text-align: left; padding-left: 40px; background: #111;
+            cursor: pointer; transition: 0.3s; background: #111; text-align: left; padding-left: 30px;
         }
-        .diff-btn::before { content: ''; position: absolute; left: 0; top: 0; width: 8px; height: 100%; background: currentColor; }
-        .diff-btn:hover { transform: scale(1.02) translateX(10px); box-shadow: -10px 0 20px currentColor; background: rgba(255,255,255,0.05); }
-        .b-easy { color: var(--neon-green); border: 1px solid rgba(57, 255, 20, 0.3); }
-        .b-med { color: var(--neon-gold); border: 1px solid rgba(255, 204, 0, 0.3); }
-        .b-hard { color: var(--neon-red); border: 1px solid rgba(255, 0, 51, 0.3); }
-        .btn-subtext { display: block; font-size: 0.9rem; font-weight: 300; color: rgba(255,255,255,0.5); letter-spacing: 1px; margin-top: 4px; }
+        .diff-btn::before { content: ''; position: absolute; left: 0; top: 0; width: 6px; height: 100%; background: currentColor; }
+        .diff-btn:hover { transform: translateX(10px); box-shadow: -10px 0 20px currentColor; }
+        .b-easy { color: var(--neon-green); }
+        .b-med { color: var(--neon-gold); }
+        .b-hard { color: var(--neon-red); }
 
-        /* --- 鍵盤遊戲舞台 (九宮格) --- */
+        /* --- 九宮格舞台 --- */
         #game-stage {
-            width: 100%; height: 60vh; max-height: 600px;
-            background: #020205; border-radius: 30px;
-            border: 4px solid rgba(255,255,255,0.1); 
-            position: relative; overflow: hidden;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-            /* 設置為 3x3 網格 */
+            width: 100%; height: 55vh; max-height: 500px;
+            background: #020205; border-radius: 25px;
+            border: 3px solid rgba(255,255,255,0.1); 
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 4px;
-            padding: 4px;
+            gap: 8px; padding: 10px; position: relative;
         }
 
-        /* 網格單元格 */
         .grid-cell {
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 5rem;
-            font-weight: 900;
-            color: rgba(255,255,255,0.02); /* 預設超淡 */
-            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 4rem; font-weight: 900; color: rgba(255,255,255,0.02);
+            transition: 0.2s;
         }
 
-        /* 啟用的單元格 (顯示數字) */
-        .grid-cell.active-zone {
-            color: rgba(255,255,255,0.15);
-            border-color: rgba(0, 210, 255, 0.2);
-            text-shadow: 0 0 20px var(--neon-blue);
-        }
+        .grid-cell.active-zone { color: rgba(255,255,255,0.1); border-color: rgba(0, 210, 255, 0.15); }
+        .grid-cell.correct-hit { animation: flashGreen 0.2s ease-out; }
+        @keyframes flashGreen { 0% { background: rgba(57, 255, 20, 0.4); } 100% { background: transparent; } }
 
-        /* 按對時的閃爍 */
-        .grid-cell.correct-hit {
-            animation: flashGreen 0.3s ease-out;
-        }
-        @keyframes flashGreen { 0% { background: rgba(57, 255, 20, 0.5); } 100% { background: transparent; } }
+        .stage-error { animation: flashRed 0.2s ease-out; }
+        @keyframes flashRed { 0% { border-color: var(--neon-red); } }
 
-        /* 按錯時舞台閃爍 */
-        .stage-error { animation: flashRed 0.3s ease-out; }
-        @keyframes flashRed { 0% { border-color: var(--neon-red); box-shadow: 0 0 50px var(--neon-red); } }
-
-        /* 目標球體 */
         #target { 
-            width: 80px; height: 80px; border-radius: 50%; 
-            position: absolute; display: none; z-index: 10; 
-            border: 4px solid #fff; pointer-events: none; /* 讓滑鼠點擊穿透 */
-            transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 增加一點彈性移動感 */
+            width: 70px; height: 70px; border-radius: 50%; 
+            position: fixed; display: none; z-index: 10; 
+            border: 4px solid #fff; pointer-events: none;
+            transition: all 0.1s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
 
-        .info-panel { display: flex; justify-content: space-around; font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; }
+        .info-panel { display: flex; justify-content: space-around; font-size: 2rem; font-weight: 900; margin-bottom: 15px; }
 
-        /* --- 💥 加分與扣分特效 --- */
         .popup-effect {
-            position: absolute; font-size: 3rem; font-weight: 900;
+            position: fixed; font-size: 3rem; font-weight: 900;
             pointer-events: none; z-index: 101;
-            animation: popupFloat 0.6s ease-out forwards;
+            animation: popupFloat 0.5s ease-out forwards;
             text-shadow: 0 0 15px currentColor;
         }
-        .popup-miss { color: var(--neon-red); }
-        .popup-hit { color: var(--neon-green); }
-        @keyframes popupFloat {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
-        }
+        @keyframes popupFloat { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.6); } 100% { opacity: 0; transform: translate(-50%, -120%) scale(1.3); } }
 
-        /* 結算 */
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
         }
-        #result-box {
-            background: #0a0a0a; padding: 50px; border-radius: 30px; text-align: center;
-            border: 2px solid var(--neon-blue); box-shadow: 0 0 50px rgba(0, 210, 255, 0.2);
-        }
+        #result-box { background: #0a0a0a; padding: 40px; border-radius: 30px; text-align: center; border: 2px solid var(--neon-blue); }
     </style>
 </head>
 <body>
 
-    <h1>NEURAL REACTION K-TYPE</h1>
+    <h1>NEURAL REACTION</h1>
 
     <div id="step1" class="container active">
-        <p style="text-align:center; color: #555; text-transform: uppercase;">選擇參賽角色</p>
+        <p style="text-align:center; color:#555;">IDENTITY SELECTION</p>
         <div class="role-grid">
-            <div class="role-card" onclick="setRole('gold')">
-                <div class="char-circle" style="background: gold; color: gold;"></div>
-                <div class="role-name">黃金英雄</div>
-            </div>
-            <div class="role-card" onclick="setRole('cyan')">
-                <div class="char-circle" style="background: cyan; color: cyan;"></div>
-                <div class="role-name">青藍忍者</div>
-            </div>
-            <div class="role-card" onclick="setRole('magenta')">
-                <div class="char-circle" style="background: #ff007f; color: #ff007f;"></div>
-                <div class="role-name">桃紅刺客</div>
-            </div>
+            <div class="role-card" onclick="setRole('gold')"><div class="char-circle" style="background:gold; color:gold;"></div><b>黃金英雄</b></div>
+            <div class="role-card" onclick="setRole('cyan')"><div class="char-circle" style="background:cyan; color:cyan;"></div><b>青藍忍者</b></div>
+            <div class="role-card" onclick="setRole('magenta')"><div class="char-circle" style="background:#ff007f; color:#ff007f;"></div><b>桃紅刺客</b></div>
         </div>
     </div>
 
     <div id="step2" class="container">
-        <p style="text-align:center; color: #555; text-transform: uppercase;">選擇鍵盤操控區域</p>
+        <p style="text-align:center; color:#555;">SELECT DIFFICULTY (NUMPAD MODE)</p>
         <div class="diff-group">
-            <button class="diff-btn b-easy" onclick="start(['1','2','4','5'], 900)">
-                初級區域 <span class="btn-subtext">按鍵: 1, 2, 4, 5 (左上四格)</span>
-            </button>
-            <button class="diff-btn b-med" onclick="start(['1','2','3','4','5','6'], 800)">
-                中級擴展 <span class="btn-subtext">按鍵: 1 ~ 6 (上方兩排)</span>
-            </button>
-            <button class="diff-btn b-hard" onclick="start(['1','2','3','4','5','6','7','8','9'], 700)">
-                高級全開 <span class="btn-subtext">按鍵: 1 ~ 9 (完整九宮格)</span>
-            </button>
+            <button class="diff-btn b-easy" onclick="start(['1','2','4','5'], 1000)">初級區域 [1,2,4,5]</button>
+            <button class="diff-btn b-med" onclick="start(['1','2','3','4','5','6'], 850)">中級區域 [1 ~ 6]</button>
+            <button class="diff-btn b-hard" onclick="start(['1','2','3','4','5','6','7','8','9'], 700)">高級區域 [1 ~ 9]</button>
         </div>
     </div>
 
-    <div id="step3" class="container" style="max-width: 900px;">
+    <div id="step3" class="container">
         <div class="info-panel">
-            <span style="color:var(--neon-red);">TIME: <span id="timer">--</span></span>
+            <span style="color:var(--neon-red);">TIME: <span id="timer">35</span></span>
             <span style="color:var(--neon-blue);">SCORE: <span id="score">0</span>/7</span>
         </div>
         <div id="game-stage"></div>
@@ -197,31 +145,30 @@
 
     <div id="result-overlay">
         <div id="result-box">
-            <h2 id="res-title" style="font-size: 3rem;"></h2>
-            <p id="res-msg" style="font-size: 1.4rem; color: #888; margin-bottom: 30px;"></p>
-            <button style="background:var(--neon-blue); border:none; padding:15px 40px; font-weight:bold; cursor:pointer; border-radius:5px;" onclick="location.reload()">重啟系統</button>
+            <h2 id="res-title"></h2>
+            <p id="res-msg"></p>
+            <button style="background:var(--neon-blue); border:none; padding:12px 30px; cursor:pointer; font-weight:bold;" onclick="location.reload()">REBOOT</button>
         </div>
-    </script>
+    </div>
 
     <script>
-        let pColor = "", pScore = 0, pTime = 35;
-        let active = false, moveTimer;
-        let allowedKeys = []; // 當前難度允許的按鍵
-        let currentTargetKey = ""; // 目前球所在的目標按鍵
+        let pColor = "", pScore = 0, pTime = 35, active = false, moveTimer;
+        let allowedKeys = [], currentTargetKey = "";
 
-        // 初始化網格
+        // 核心修正：按照鍵盤九宮格順序生成 (7,8,9 在最上排)
         function initGrid() {
             const stage = document.getElementById('game-stage');
-            stage.innerHTML = ''; // 清空
-            for (let i = 1; i <= 9; i++) {
+            stage.innerHTML = '';
+            const numpadOrder = [7, 8, 9, 4, 5, 6, 1, 2, 3];
+            numpadOrder.forEach(num => {
                 let cell = document.createElement('div');
                 cell.className = 'grid-cell';
-                cell.id = 'cell-' + i;
-                cell.innerText = i; // 背景數字
+                cell.id = 'cell-' + num;
+                cell.innerText = num;
                 stage.appendChild(cell);
-            }
+            });
         }
-        initGrid(); // 頁面加載時先初始化
+        initGrid();
 
         function setRole(c) {
             pColor = (c === 'magenta') ? '#ff007f' : c;
@@ -230,17 +177,11 @@
         }
 
         function start(keys, speed) {
-            allowedKeys = keys;
-            pScore = 0; active = true;
+            allowedKeys = keys; active = true;
             document.getElementById('step2').classList.remove('active');
             document.getElementById('step3').classList.add('active');
             
-            // 點亮對應難度的格子
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                if (allowedKeys.includes(cell.innerText)) {
-                    cell.classList.add('active-zone');
-                }
-            });
+            allowedKeys.forEach(k => document.getElementById('cell-'+k).classList.add('active-zone'));
 
             const ball = document.getElementById('target');
             ball.style.backgroundColor = pColor;
@@ -256,107 +197,55 @@
 
         function jump(speed) {
             if (!active) return;
+            currentTargetKey = allowedKeys[Math.floor(Math.random() * allowedKeys.length)];
+            const cell = document.getElementById('cell-' + currentTargetKey);
+            const rect = cell.getBoundingClientRect();
             
-            // 1. 從允許的按鍵中隨機挑選一個
-            const randomIndex = Math.floor(Math.random() * allowedKeys.length);
-            currentTargetKey = allowedKeys[randomIndex];
-
-            // 2. 找到對應的格子元素
-            const targetCell = document.getElementById('cell-' + currentTargetKey);
-            const stage = document.getElementById('game-stage');
+            // 將球放在格子的中央範圍隨機偏移
             const ball = document.getElementById('target');
-
-            // 3. 計算格子相對於舞台的位置和大小
-            // 這裡需要考慮舞台的 margin/padding，使用相對座標計算最準
-            const stageRect = stage.getBoundingClientRect();
-            const cellRect = targetCell.getBoundingClientRect();
-
-            // 4. 在該格子範圍內隨機產生球的位置 (相對於視窗)
-            // 減去 85 是球的大小和一點邊距，確保球在格子內
-            const minX = cellRect.left;
-            const minY = cellRect.top;
-            const maxX = cellRect.right - 85;
-            const maxY = cellRect.bottom - 85;
-
-            const randomX = Math.random() * (maxX - minX) + minX;
-            const randomY = Math.random() * (maxY - minY) + minY;
-
-            // 5. 定位球體 (使用 fixed 定位相對於視窗，因為它在 container 外部)
-            ball.style.position = 'fixed';
-            ball.style.left = randomX + "px";
-            ball.style.top = randomY + "px";
+            ball.style.left = (rect.left + Math.random() * (rect.width - 75)) + "px";
+            ball.style.top = (rect.top + Math.random() * (rect.height - 75)) + "px";
             
             moveTimer = setTimeout(() => jump(speed), speed);
         }
 
-        // 🎹 全域鍵盤監聽
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', (e) => {
             if (!active) return;
+            let key = e.key;
+            if (key.startsWith('Numpad')) key = key.replace('Numpad', '');
             
-            // 獲取按下的鍵值 (兼容一般數字鍵和 Numpad 數字鍵)
-            let pressedKey = e.key;
-            // 如果是 Numpad 數字，只取最後一個數字字符
-            if (pressedKey.startsWith('Numpad')) {
-                pressedKey = pressedKey.replace('Numpad', '');
-            }
+            const ball = document.getElementById('target').getBoundingClientRect();
+            const cx = ball.left + 35, cy = ball.top + 35;
 
-            const ball = document.getElementById('target');
-            const ballRect = ball.getBoundingClientRect();
-            const centerX = ballRect.left + ballRect.width / 2;
-            const centerY = ballRect.top + ballRect.height / 2;
-
-            // 判斷邏輯
-            if (pressedKey === currentTargetKey) {
-                // ✅ 按對了
-                pScore++;
-                document.getElementById('score').innerText = pScore;
-                // 讓對應格子閃爍綠光
-                document.getElementById('cell-' + pressedKey).classList.remove('correct-hit');
-                void document.getElementById('cell-' + pressedKey).offsetWidth; // 強制重繪以觸發動畫
-                document.getElementById('cell-' + pressedKey).classList.add('correct-hit');
-                // 顯示+1特效
-                showPopup(centerX, centerY, '+1', 'popup-hit');
+            if (key === currentTargetKey) {
+                pScore++; document.getElementById('score').innerText = pScore;
+                const cell = document.getElementById('cell-' + key);
+                cell.classList.remove('correct-hit'); void cell.offsetWidth; cell.classList.add('correct-hit');
+                showPopup(cx, cy, '+1', 'var(--neon-green)');
                 if (pScore >= 7) end(true);
-            } else if (allowedKeys.includes(pressedKey)) {
-                // ❌ 按錯了 (但按的是有效區域內的鍵)
-                if (pScore > 0) { pScore--; document.getElementById('score').innerText = pScore; }
-                // 舞台閃紅光
+            } else if (allowedKeys.includes(key)) {
+                if (pScore > 0) pScore--; document.getElementById('score').innerText = pScore;
                 const stage = document.getElementById('game-stage');
-                stage.classList.remove('stage-error');
-                void stage.offsetWidth; 
-                stage.classList.add('stage-error');
-                // 顯示-1特效
-                showPopup(centerX, centerY, '-1', 'popup-miss');
+                stage.classList.remove('stage-error'); void stage.offsetWidth; stage.classList.add('stage-error');
+                showPopup(cx, cy, '-1', 'var(--neon-red)');
             }
-            // 如果按的鍵不在允許範圍內 (例如初級按了 '9')，則不做反應
         });
 
-        function showPopup(x, y, text, typeClass) {
-            // 特效直接加在 body 上，使用固定定位
-            const popup = document.createElement('div');
-            popup.className = `popup-effect ${typeClass}`;
-            popup.innerText = text;
-            popup.style.position = 'fixed';
-            popup.style.left = x + 'px';
-            popup.style.top = y + 'px';
-            document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 600);
+        function showPopup(x, y, text, color) {
+            const p = document.createElement('div');
+            p.className = 'popup-effect'; p.innerText = text;
+            p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.color = color;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 500);
         }
 
         function end(win) {
             active = false; clearTimeout(moveTimer);
             document.getElementById('result-overlay').style.display = 'flex';
-            if (win) {
-                document.getElementById('res-title').innerText = "SUCCESS";
-                document.getElementById('res-title').style.color = "var(--neon-gold)";
-                document.getElementById('res-msg').innerText = "鍵盤神經反應連接成功！";
-            } else {
-                document.getElementById('res-title').innerText = "FAILED";
-                document.getElementById('res-title').style.color = "var(--neon-red)";
-                document.getElementById('res-msg').innerText = "連接中斷，請檢查輸入反應。";
-            }
+            document.getElementById('res-title').innerText = win ? "SUCCESS" : "FAILED";
+            document.getElementById('res-title').style.color = win ? "var(--neon-gold)" : "var(--neon-red)";
+            document.getElementById('res-msg').innerText = win ? "鍵盤神經反射達成標。 " : "速度不足，請重新校準。";
         }
     </script>
 </body>
 </html>
- 
