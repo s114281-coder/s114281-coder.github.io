@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURAL REACTION - 極限大畫面</title>
+    <title>NEURAL REACTION - 動態佈局</title>
     <style>
         :root {
             --bg: #050510;
@@ -23,94 +23,92 @@
         }
 
         h1 {
-            font-size: 3.5rem; margin: 20px 0; font-weight: 900;
+            font-size: 3rem; margin: 25px 0; font-weight: 900;
             background: linear-gradient(to bottom, #fff, var(--neon-blue));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.6));
-            letter-spacing: 6px;
+            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.5));
+            letter-spacing: 4px;
         }
 
         .container {
-            width: 95%; max-width: 1000px; /* 大畫面佈局 */
-            background: rgba(255, 255, 255, 0.03);
+            width: 90%; max-width: 800px; /* 固定容器大小 */
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 30px; padding: 30px; display: none;
-            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            box-shadow: 0 0 40px rgba(0,0,0,1);
         }
         .container.active { display: block !important; }
 
         /* --- 角色選擇 --- */
-        .role-grid { display: flex; justify-content: center; gap: 30px; }
+        .role-grid { display: flex; justify-content: center; gap: 20px; }
         .role-card {
-            background: #111; border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 20px; padding: 30px; width: 180px; cursor: pointer;
+            background: #111; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 20px; width: 150px; cursor: pointer;
             transition: 0.3s; text-align: center;
         }
-        .role-card:hover { border-color: var(--neon-blue); transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.4); }
-        .char-circle { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 20px; box-shadow: 0 0 20px currentColor; }
+        .role-card:hover { border-color: var(--neon-blue); transform: scale(1.05); }
+        .char-circle { width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 15px; box-shadow: 0 0 15px currentColor; }
 
         /* --- 難度按鈕 --- */
         .diff-btn {
-            position: relative; width: 100%; padding: 25px; font-size: 1.8rem;
-            font-weight: 900; color: #fff; border: none; border-radius: 15px;
-            cursor: pointer; transition: 0.3s; background: #111; text-align: left; padding-left: 40px;
-            margin-bottom: 20px;
+            position: relative; width: 100%; padding: 22px; font-size: 1.5rem;
+            font-weight: 900; color: #fff; border: none; border-radius: 12px;
+            cursor: pointer; transition: 0.2s; background: #111; text-align: left; padding-left: 35px;
+            margin-bottom: 15px; overflow: hidden;
         }
-        .diff-btn::before { content: ''; position: absolute; left: 0; top: 0; width: 10px; height: 100%; background: currentColor; }
-        .diff-btn:hover { transform: translateX(15px); box-shadow: -15px 0 30px currentColor; }
+        .diff-btn::before { content: ''; position: absolute; left: 0; top: 0; width: 8px; height: 100%; background: currentColor; }
+        .diff-btn:hover { transform: translateX(10px); background: #1a1a1a; }
         .b-easy { color: var(--neon-green); }
         .b-med { color: var(--neon-gold); }
         .b-hard { color: var(--neon-red); }
 
-        /* --- 巨大九宮格舞台 --- */
+        /* --- 核心：動態九宮格舞台 --- */
         #game-stage {
-            width: 100%; height: 70vh; /* 畫面撐開 */
+            width: 100%; height: 60vh;
             background: #000; border-radius: 20px;
-            border: 4px solid rgba(255,255,255,0.1); 
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 15px; padding: 15px; position: relative;
+            border: 3px solid rgba(255,255,255,0.1); 
+            display: grid; /* 透過 JS 動態修改 gridTemplateColumns/Rows */
+            gap: 10px; padding: 10px; position: relative;
         }
 
         .grid-cell {
-            background: rgba(255,255,255,0.01);
+            background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 15px;
             display: flex; justify-content: center; align-items: center;
-            font-size: 6rem; font-weight: 900; color: rgba(255,255,255,0.01);
+            font-size: 5rem; font-weight: 900; color: rgba(255,255,255,0.1);
             transition: 0.2s;
         }
 
-        .grid-cell.active-zone { color: rgba(255,255,255,0.08); border-color: rgba(0, 210, 255, 0.2); }
-        .grid-cell.correct-hit { animation: flashGreen 0.2s ease-out; }
-        @keyframes flashGreen { 0% { background: rgba(57, 255, 20, 0.5); } 100% { background: transparent; } }
+        .correct-hit { animation: flashGreen 0.2s ease-out; }
+        @keyframes flashGreen { 0% { background: rgba(57, 255, 20, 0.4); } 100% { background: transparent; } }
 
         .stage-error { animation: flashRed 0.2s ease-out; }
-        @keyframes flashRed { 0% { border-color: var(--neon-red); box-shadow: inset 0 0 50px var(--neon-red); } }
+        @keyframes flashRed { 0% { border-color: var(--neon-red); } }
 
+        /* 目標球體 */
         #target { 
-            width: 100px; height: 100px; border-radius: 50%; 
+            width: 80px; height: 80px; border-radius: 50%; 
             position: fixed; display: none; z-index: 10; 
-            border: 5px solid #fff; pointer-events: none;
+            border: 4px solid #fff; pointer-events: none;
             transition: all 0.05s ease-out;
         }
 
-        .info-panel { display: flex; justify-content: space-around; font-size: 2.5rem; font-weight: 900; margin-bottom: 20px; }
+        .info-panel { display: flex; justify-content: space-around; font-size: 2.2rem; font-weight: 900; margin-bottom: 15px; }
 
         .popup-effect {
-            position: fixed; font-size: 4rem; font-weight: 900;
+            position: fixed; font-size: 3.5rem; font-weight: 900;
             pointer-events: none; z-index: 101;
             animation: popupFloat 0.4s ease-out forwards;
-            text-shadow: 0 0 20px currentColor;
+            text-shadow: 0 0 15px currentColor;
         }
-        @keyframes popupFloat { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); } }
+        @keyframes popupFloat { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.7); } 100% { opacity: 0; transform: translate(-50%, -130%) scale(1.3); } }
 
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 1000;
+            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
         }
-        #result-box { background: #0a0a0a; padding: 60px; border-radius: 40px; text-align: center; border: 3px solid var(--neon-blue); box-shadow: 0 0 100px rgba(0, 210, 255, 0.3); }
+        #result-box { background: #0a0a0a; padding: 50px; border-radius: 30px; text-align: center; border: 2px solid var(--neon-blue); }
     </style>
 </head>
 <body>
@@ -118,26 +116,26 @@
     <h1>NEURAL REACTION</h1>
 
     <div id="step1" class="container active">
-        <p style="text-align:center; letter-spacing: 5px; color:#444;">SELECT OPERATOR</p>
+        <p style="text-align:center; color:#555; letter-spacing:2px;">SELECT OPERATOR</p>
         <div class="role-grid">
-            <div class="role-card" onclick="setRole('gold')"><div class="char-circle" style="background:gold; color:gold;"></div><b style="font-size:1.5rem;">黃金英雄</b></div>
-            <div class="role-card" onclick="setRole('cyan')"><div class="char-circle" style="background:cyan; color:cyan;"></div><b style="font-size:1.5rem;">青藍忍者</b></div>
-            <div class="role-card" onclick="setRole('magenta')"><div class="char-circle" style="background:#ff007f; color:#ff007f;"></div><b style="font-size:1.5rem;">桃紅刺客</b></div>
+            <div class="role-card" onclick="setRole('gold')"><div class="char-circle" style="background:gold; color:gold;"></div><b>黃金英雄</b></div>
+            <div class="role-card" onclick="setRole('cyan')"><div class="char-circle" style="background:cyan; color:cyan;"></div><b>青藍忍者</b></div>
+            <div class="role-card" onclick="setRole('magenta')"><div class="char-circle" style="background:#ff007f; color:#ff007f;"></div><b>桃紅刺客</b></div>
         </div>
     </div>
 
-    <div id="step2" class="container" style="max-width: 700px;">
-        <p style="text-align:center; letter-spacing: 5px; color:#444;">OVERCLOCKING MODE</p>
+    <div id="step2" class="container" style="max-width: 600px;">
+        <p style="text-align:center; color:#555; letter-spacing:2px;">DYNAMIC GRID MODE</p>
         <div class="diff-group">
-            <button class="diff-btn b-easy" onclick="start(['1','2','4','5'], 700)">初級反應 (700ms)</button>
-            <button class="diff-btn b-med" onclick="start(['1','2','3','4','5','6'], 500)">中級同步 (500ms)</button>
-            <button class="diff-btn b-hard" onclick="start(['1','2','3','4','5','6','7','8','9'], 350)">巔峰超頻 (350ms)</button>
+            <button class="diff-btn b-easy" onclick="start(['4','5','1','2'], 700)">初級反應 (2x2 大區域)</button>
+            <button class="diff-btn b-med" onclick="start(['4','5','6','1','2','3'], 500)">中級同步 (2x3 中區域)</button>
+            <button class="diff-btn b-hard" onclick="start(['7','8','9','4','5','6','1','2','3'], 350)">巔峰超頻 (3x3 九宮格)</button>
         </div>
     </div>
 
     <div id="step3" class="container">
         <div class="info-panel">
-            <span style="color:var(--neon-red);">CLOCK: <span id="timer">35</span>s</span>
+            <span style="color:var(--neon-red);">TIME: <span id="timer">35</span></span>
             <span style="color:var(--neon-blue);">DATA: <span id="score">0</span> / 7</span>
         </div>
         <div id="game-stage"></div>
@@ -146,9 +144,9 @@
 
     <div id="result-overlay">
         <div id="result-box">
-            <h2 id="res-title" style="font-size: 4rem; margin-bottom: 10px;"></h2>
-            <p id="res-msg" style="font-size: 1.8rem; margin-bottom: 40px; color: #777;"></p>
-            <button style="background:var(--neon-blue); border:none; padding:15px 50px; cursor:pointer; font-weight:bold; font-size: 1.5rem; border-radius: 10px;" onclick="location.reload()">RETRY SYSTEM</button>
+            <h2 id="res-title" style="font-size: 3.5rem;"></h2>
+            <p id="res-msg" style="font-size: 1.5rem; margin-bottom: 30px;"></p>
+            <button style="background:var(--neon-blue); border:none; padding:15px 40px; cursor:pointer; font-weight:bold; border-radius:5px;" onclick="location.reload()">REBOOT</button>
         </div>
     </div>
 
@@ -156,11 +154,25 @@
         let pColor = "", pScore = 0, pTime = 35, active = false, moveTimer;
         let allowedKeys = [], currentTargetKey = "";
 
-        function initGrid() {
+        // 動態生成網格佈局
+        function initGrid(keys) {
             const stage = document.getElementById('game-stage');
             stage.innerHTML = '';
-            const numpadOrder = [7, 8, 9, 4, 5, 6, 1, 2, 3];
-            numpadOrder.forEach(num => {
+            
+            // 根據按鍵數量決定行列數
+            if (keys.length === 4) { // 初級 2x2
+                stage.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                stage.style.gridTemplateRows = 'repeat(2, 1fr)';
+            } else if (keys.length === 6) { // 中級 2x3
+                stage.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                stage.style.gridTemplateRows = 'repeat(2, 1fr)';
+            } else { // 高級 3x3
+                stage.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                stage.style.gridTemplateRows = 'repeat(3, 1fr)';
+            }
+
+            // 生成格子
+            keys.forEach(num => {
                 let cell = document.createElement('div');
                 cell.className = 'grid-cell';
                 cell.id = 'cell-' + num;
@@ -168,7 +180,6 @@
                 stage.appendChild(cell);
             });
         }
-        initGrid();
 
         function setRole(c) {
             pColor = (c === 'magenta') ? '#ff007f' : c;
@@ -178,14 +189,13 @@
 
         function start(keys, speed) {
             allowedKeys = keys; active = true;
+            initGrid(keys);
             document.getElementById('step2').classList.remove('active');
             document.getElementById('step3').classList.add('active');
             
-            allowedKeys.forEach(k => document.getElementById('cell-'+k).classList.add('active-zone'));
-
             const ball = document.getElementById('target');
             ball.style.backgroundColor = pColor;
-            ball.style.boxShadow = `0 0 50px ${pColor}, inset 0 0 15px #fff`;
+            ball.style.boxShadow = `0 0 40px ${pColor}, inset 0 0 10px #fff`;
             ball.style.display = 'block';
 
             const countdown = setInterval(() => {
@@ -202,10 +212,11 @@
             const rect = cell.getBoundingClientRect();
             
             const ball = document.getElementById('target');
-            // 讓球在大格子中隨機出現在中間 60% 的區域，避免撞牆
-            const margin = rect.width * 0.2;
-            ball.style.left = (rect.left + margin + Math.random() * (rect.width - 2*margin - 100)) + "px";
-            ball.style.top = (rect.top + margin + Math.random() * (rect.height - 2*margin - 100)) + "px";
+            // 球在大格子內中央隨機浮動
+            const safeWidth = rect.width - 100;
+            const safeHeight = rect.height - 100;
+            ball.style.left = (rect.left + 10 + Math.random() * safeWidth) + "px";
+            ball.style.top = (rect.top + 10 + Math.random() * safeHeight) + "px";
             
             moveTimer = setTimeout(() => jump(speed), speed);
         }
@@ -216,7 +227,7 @@
             if (key.startsWith('Numpad')) key = key.replace('Numpad', '');
             
             const ball = document.getElementById('target').getBoundingClientRect();
-            const cx = ball.left + 50, cy = ball.top + 50;
+            const cx = ball.left + 40, cy = ball.top + 40;
 
             if (key === currentTargetKey) {
                 pScore++; document.getElementById('score').innerText = pScore;
@@ -243,9 +254,9 @@
         function end(win) {
             active = false; clearTimeout(moveTimer);
             document.getElementById('result-overlay').style.display = 'flex';
-            document.getElementById('res-title').innerText = win ? "PERFECT" : "SYSTEM FAILURE";
+            document.getElementById('res-title').innerText = win ? "SUCCESS" : "FAILURE";
             document.getElementById('res-title').style.color = win ? "var(--neon-gold)" : "var(--neon-red)";
-            document.getElementById('res-msg').innerText = win ? "神經連結率：100%。你是真正的鍵盤戰神。" : "同步率過低，系統已強制登出。";
+            document.getElementById('res-msg').innerText = win ? "神經連結完美達成。" : "同步率不足，連線中斷。";
         }
     </script>
 </body>
