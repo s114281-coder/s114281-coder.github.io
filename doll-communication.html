@@ -3,237 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>萌寵反應大挑戰</title>
+    <title>萌寵叢林大冒險</title>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            /* 🌿 叢林配色與可愛點綴 🌿 */
             --cute-pink: #ffb7c5;
             --cute-blue: #aec6cf;
             --cute-yellow: #fdfd96;
             --cute-green: #b2e0b2;
+            /* 介面維持半透明白色，在深色背景更突出 */
             --glass-white: rgba(255, 255, 255, 0.9);
             --text-dark: #555;
         }
 
         body {
-            background: var(--bg-gradient);
+            /* --- 🌳 全新叢林背景 🌳 --- */
+            background-color: #2E7D32; /* 深綠色基底 */
+            /* 疊加多層次漸層模擬茂密叢林與灑落的陽光 */
+            background-image:
+                radial-gradient(circle at 20% 90%, rgba(0, 0, 0, 0.1) 0%, transparent 50%), /* 底部陰影 */
+                radial-gradient(circle at 80% 10%, rgba(255, 255, 200, 0.2) 0%, transparent 30%), /* 頂部陽光 */
+                linear-gradient(160deg, #004d40 0%, #2e7d32 40%, #43a047 100%); /* 主體叢林綠漸層 */
+            
             color: var(--text-dark);
-            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            font-family: 'Comic Sans MS', '微軟正黑體', 'Microsoft JhengHei', sans-serif;
             margin: 0; display: flex; flex-direction: column; align-items: center;
             min-height: 100vh; overflow: hidden; user-select: none;
         }
 
         h1 {
-            font-size: 2.8rem; margin: 30px 0; font-weight: 900;
-            color: #888; letter-spacing: 5px; text-transform: uppercase;
+            font-size: 3rem; margin: 25px 0; font-weight: 900;
+            color: white;
+            /* 標題陰影改為叢林綠和亮黃色，更契合主題 */
+            text-shadow: 3px 3px 0px #1b5e20, -2px -2px 0px #fdd835;
+            letter-spacing: 2px;
+            animation: floatTitle 3s ease-in-out infinite;
         }
+        @keyframes floatTitle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
+        /* ☁️ 棉花糖容器 (在深色背景下更顯眼) ☁️ */
         .container {
-            width: 90%; max-width: 700px; background: var(--glass-white);
-            border-radius: 40px; padding: 40px; display: none;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05); position: relative;
+            width: 90%; max-width: 800px;
+            background: var(--glass-white);
+            backdrop-filter: blur(10px);
+            border: 4px solid #fff;
+            border-radius: 50px; padding: 35px; display: none;
+            box-shadow: 0 15px 35px rgba(0, 77, 64, 0.3); /* 陰影改為深綠色調 */
+            position: relative;
         }
-        .container.active { display: block !important; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .container.active { display: block !important; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+        /* 🔙 Q彈返回鍵 */
         .back-btn {
             position: absolute; top: 20px; left: 20px;
-            background: #eee; border: none; color: #888; padding: 8px 15px; border-radius: 15px;
-            cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s;
+            background: white; border: 2px solid var(--cute-blue);
+            color: var(--cute-blue); padding: 8px 15px; border-radius: 20px;
+            cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; z-index: 100;
+            box-shadow: 0 4px 0 var(--cute-blue);
         }
-        .back-btn:hover { background: #ddd; }
+        .back-btn:hover { transform: translateY(4px); box-shadow: 0 0 0 var(--cute-blue); background: #eef9ff; }
+        .back-btn:active { transform: translateY(6px); }
 
-        /* --- 角色選擇 (純色塊) --- */
-        .role-grid { display: flex; justify-content: center; gap: 25px; margin-top: 20px; }
-        .role-card {
-            background: white; border-radius: 30px; padding: 25px;
-            width: 130px; cursor: pointer; transition: 0.3s; text-align: center;
-        }
-        .char-circle {
-            width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 15px;
-            border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-        .role-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-
-        /* --- 遊戲按鈕 --- */
-        .diff-btn {
-            width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900; color: white;
-            border: none; border-radius: 20px; cursor: pointer; transition: 0.2s;
-            margin-bottom: 12px;
-        }
-        .b-easy { background: var(--cute-green); }
-        .b-med { background: var(--cute-yellow); color: #888; }
-        .b-hard { background: var(--cute-pink); }
-        .diff-btn:hover { opacity: 0.9; transform: scale(1.02); }
-
-        #game-stage {
-            width: 100%; height: 55vh; background: #fafafa; border-radius: 30px;
-            display: grid; gap: 12px; padding: 15px; border: 2px solid #eee;
-        }
-        .grid-cell {
-            background: white; border-radius: 20px; display: flex; justify-content: center;
-            align-items: center; font-size: 4rem; font-weight: 900; color: #eee;
-        }
-        .correct-hit { animation: flashGreen 0.2s ease-out; }
-        @keyframes flashGreen { 0% { background: #e8f5e9; } 100% { background: white; } }
-        .stage-error { animation: shake 0.2s ease-in-out; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-
-        /* 純色球體 */
-        #target { 
-            width: 80px; height: 80px; border-radius: 50%; position: fixed; display: none; 
-            z-index: 10; border: 6px solid #fff; pointer-events: none;
-            transition: all 0.05s ease-out; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        .info-panel { display: flex; justify-content: space-around; font-size: 1.8rem; font-weight: 900; margin-bottom: 15px; color: #aaa; }
+        /* --- 🐾 可愛角色卡片 (有圖案!) 🐾 --- */
+        .role-grid { display: flex; justify-content: center; gap: 30px; margin-top: 30px; }
         
-        .popup-effect {
-            position: fixed; font-size: 2.5rem; font-weight: 900; pointer-events: none; 
-            z-index: 101; animation: popupMove 0.5s ease-out forwards;
-        }
-        @keyframes popupMove { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -100px); } }
-
-        #result-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
-        }
-        #result-box { background: white; padding: 40px; border-radius: 40px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-    </style>
-</head>
-<body>
-
-    <h1>Reaction</h1>
-
-    <div id="step1" class="container active">
-        <p style="text-align:center; color:#bbb; font-weight:bold; letter-spacing:2px;">SELECT CORE</p>
-        <div class="role-grid">
-            <div class="role-card" onclick="setRole('var(--cute-yellow)')">
-                <div class="char-circle" style="background: var(--cute-yellow);"></div>
-                <div style="font-weight:bold; color:#888;">YELLOW</div>
-            </div>
-            <div class="role-card" onclick="setRole('var(--cute-pink)')">
-                <div class="char-circle" style="background: var(--cute-pink);"></div>
-                <div style="font-weight:bold; color:#888;">PINK</div>
-            </div>
-            <div class="role-card" onclick="setRole('var(--cute-blue)')">
-                <div class="char-circle" style="background: var(--cute-blue);"></div>
-                <div style="font-weight:bold; color:#888;">BLUE</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="step2" class="container">
-        <button class="back-btn" onclick="showStep(1)">BACK</button>
-        <p style="text-align:center; color:#bbb; font-weight:bold; margin-top: 40px;">SELECT MODE</p>
-        <div class="diff-group">
-            <button class="diff-btn b-easy" onclick="start(['4','5','1','2'], 700)">Easy (2x2)</button>
-            <button class="diff-btn b-med" onclick="start(['4','5','6','1','2','3'], 500)">Medium (2x3)</button>
-            <button class="diff-btn b-hard" onclick="start(['7','8','9','4','5','6','1','2','3'], 350)">Hard (3x3)</button>
-        </div>
-    </div>
-
-    <div id="step3" class="container">
-        <div class="info-panel">
-            <span>TIME: <span id="timer">35</span></span>
-            <span>SCORE: <span id="score">0</span> / 7</span>
-        </div>
-        <div id="game-stage"></div>
-        <div id="target"></div>
-    </div>
-
-    <div id="result-overlay">
-        <div id="result-box">
-            <h2 id="res-title" style="font-size: 2.5rem; color:#888;"></h2>
-            <p id="res-msg" style="margin-bottom: 25px; color:#aaa;"></p>
-            <button style="background:#888; color:white; border:none; padding:12px 25px; border-radius:15px; font-weight:bold; cursor:pointer;" onclick="location.reload()">RETRY</button>
-        </div>
-    </div>
-
-    <script>
-        let pColor = "", pScore = 0, pTime = 35, active = false, moveTimer, countdownInterval;
-        let allowedKeys = [], currentTargetKey = "";
-
-        function showStep(n) {
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.getElementById('step' + n).classList.add('active');
+        .role-card {
+            background: white;
+            border: 4px solid #fff;
+            border-radius: 35px; padding: 25px 15px; width: 160px; cursor: pointer;
+            transition: all 0.3s; text-align: center; position: relative; overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
 
-        function setRole(color) { pColor = color; showStep(2); }
-
-        function initGrid(keys) {
-            const stage = document.getElementById('game-stage');
-            stage.innerHTML = '';
-            if (keys.length === 4) { stage.style.gridTemplateColumns = 'repeat(2, 1fr)'; }
-            else { stage.style.gridTemplateColumns = 'repeat(3, 1fr)'; }
-            keys.forEach(num => {
-                let cell = document.createElement('div');
-                cell.className = 'grid-cell'; cell.id = 'cell-' + num; cell.innerText = num;
-                stage.appendChild(cell);
-            });
-        }
-
-        function start(keys, speed) {
-            allowedKeys = keys; active = true; pScore = 0; pTime = 35;
-            initGrid(keys);
-            document.getElementById('score').innerText = "0"; document.getElementById('timer').innerText = "35";
-            showStep(3);
-            const ball = document.getElementById('target');
-            ball.innerText = ""; ball.style.backgroundColor = pColor; ball.style.display = 'block';
-            countdownInterval = setInterval(() => {
-                pTime--; document.getElementById('timer').innerText = pTime;
-                if (pTime <= 0) { clearInterval(countdownInterval); if (active) end(false); }
-            }, 1000);
-            jump(speed);
-        }
-
-        function jump(speed) {
-            if (!active) return;
-            currentTargetKey = allowedKeys[Math.floor(Math.random() * allowedKeys.length)];
-            const cell = document.getElementById('cell-' + currentTargetKey);
-            const rect = cell.getBoundingClientRect();
-            const ball = document.getElementById('target');
-            ball.style.left = (rect.left + rect.width/2 - 40) + "px";
-            ball.style.top = (rect.top + rect.height/2 - 40) + "px";
-            moveTimer = setTimeout(() => jump(speed), speed);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (!active) return;
-            let key = e.key; if (key.startsWith('Numpad')) key = key.replace('Numpad', '');
-            const ballRect = document.getElementById('target').getBoundingClientRect();
-            const cx = ballRect.left + 40, cy = ballRect.top + 40;
-
-            if (key === currentTargetKey) {
-                pScore++; document.getElementById('score').innerText = pScore;
-                document.getElementById('cell-' + key).classList.add('correct-hit');
-                setTimeout(() => document.getElementById('cell-' + key).classList.remove('correct-hit'), 200);
-                showPopup(cx, cy, '+1', '#81c784'); // 純文字加分
-                if (pScore >= 7) end(true);
-            } else if (allowedKeys.includes(key)) {
-                if (pScore > 0) pScore--; 
-                document.getElementById('score').innerText = pScore;
-                document.getElementById('game-stage').classList.add('stage-error');
-                setTimeout(() => document.getElementById('game-stage').classList.remove('stage-error'), 200);
-                showPopup(cx, cy, '-1', '#e57373'); // 純文字扣分
-            }
-        });
-
-        function showPopup(x, y, text, color) {
-            const p = document.createElement('div');
-            p.className = 'popup-effect'; p.innerText = text;
-            p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.color = color;
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 500);
-        }
-
-        function end(win) {
-            active = false; clearTimeout(moveTimer); clearInterval(countdownInterval);
-            document.getElementById('target').style.display = 'none';
-            document.getElementById('result-overlay').style.display = 'flex';
-            document.getElementById('res-title').innerText = win ? "PASSED" : "FAILED";
-            document.getElementById('res-msg').innerText = win ? "Great reaction time!" : "Try again to improve.";
-        }
-    </script>
-</body>
-</html>
+        .char-circle {
+            width: 90px; height
