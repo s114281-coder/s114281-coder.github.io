@@ -3,149 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURAL REACTION </title>
+    <title>純淨反應測試</title>
     <style>
         :root {
-            --bg: #050510;
-            --neon-blue: #00d2ff;
-            --neon-red: #ff0033;
-            --neon-gold: #ffcc00;
-            --neon-green: #39ff14;
+            --bg-gradient: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            --cute-pink: #ffb7c5;
+            --cute-blue: #aec6cf;
+            --cute-yellow: #fdfd96;
+            --cute-green: #b2e0b2;
+            --glass-white: rgba(255, 255, 255, 0.9);
+            --text-dark: #555;
         }
 
         body {
-            background-color: var(--bg);
-            background-image: radial-gradient(circle at center, #101035 0%, #050510 100%);
-            color: white;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
             font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
             margin: 0; display: flex; flex-direction: column; align-items: center;
             min-height: 100vh; overflow: hidden; user-select: none;
         }
 
         h1 {
-            font-size: 3rem; margin: 25px 0; font-weight: 900;
-            background: linear-gradient(to bottom, #fff, var(--neon-blue));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.5));
-            letter-spacing: 4px;
+            font-size: 2.8rem; margin: 30px 0; font-weight: 900;
+            color: #888; letter-spacing: 5px; text-transform: uppercase;
         }
 
         .container {
-            width: 90%; max-width: 800px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px; padding: 30px; display: none;
-            box-shadow: 0 0 40px rgba(0,0,0,1);
-            position: relative;
+            width: 90%; max-width: 700px; background: var(--glass-white);
+            border-radius: 40px; padding: 40px; display: none;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); position: relative;
         }
-        .container.active { display: block !important; }
+        .container.active { display: block !important; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 返回按鈕樣式 --- */
         .back-btn {
             position: absolute; top: 20px; left: 20px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #888; padding: 8px 15px; border-radius: 8px;
-            cursor: pointer; font-weight: bold; font-size: 0.9rem;
-            transition: 0.2s; z-index: 100;
+            background: #eee; border: none; color: #888; padding: 8px 15px; border-radius: 15px;
+            cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s;
         }
-        .back-btn:hover {
-            color: var(--neon-blue); border-color: var(--neon-blue);
-            background: rgba(0, 210, 255, 0.1);
-            box-shadow: 0 0 10px var(--neon-blue);
-        }
+        .back-btn:hover { background: #ddd; }
 
-        /* --- 角色選擇 --- */
-        .role-grid { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        /* --- 角色選擇 (純色塊) --- */
+        .role-grid { display: flex; justify-content: center; gap: 25px; margin-top: 20px; }
         .role-card {
-            background: #111; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; padding: 20px; width: 150px; cursor: pointer;
-            transition: 0.3s; text-align: center;
+            background: white; border-radius: 30px; padding: 25px;
+            width: 130px; cursor: pointer; transition: 0.3s; text-align: center;
         }
-        .role-card:hover { border-color: var(--neon-blue); transform: scale(1.05); }
-        .char-circle { width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 15px; box-shadow: 0 0 15px currentColor; }
+        .char-circle {
+            width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 15px;
+            border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .role-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        /* --- 難度按鈕 --- */
+        /* --- 遊戲按鈕 --- */
         .diff-btn {
-            position: relative; width: 100%; padding: 22px; font-size: 1.5rem;
-            font-weight: 900; color: #fff; border: none; border-radius: 12px;
-            cursor: pointer; transition: 0.2s; background: #111; text-align: left; padding-left: 35px;
-            margin-bottom: 15px; overflow: hidden;
+            width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900; color: white;
+            border: none; border-radius: 20px; cursor: pointer; transition: 0.2s;
+            margin-bottom: 12px;
         }
-        .diff-btn::before { content: ''; position: absolute; left: 0; top: 0; width: 8px; height: 100%; background: currentColor; }
-        .diff-btn:hover { transform: translateX(10px); background: #1a1a1a; }
-        .b-easy { color: var(--neon-green); }
-        .b-med { color: var(--neon-gold); }
-        .b-hard { color: var(--neon-red); }
+        .b-easy { background: var(--cute-green); }
+        .b-med { background: var(--cute-yellow); color: #888; }
+        .b-hard { background: var(--cute-pink); }
+        .diff-btn:hover { opacity: 0.9; transform: scale(1.02); }
 
-        /* --- 九宮格舞台 --- */
         #game-stage {
-            width: 100%; height: 60vh; background: #000; border-radius: 20px;
-            border: 3px solid rgba(255,255,255,0.1); 
-            display: grid; gap: 10px; padding: 10px; position: relative;
+            width: 100%; height: 55vh; background: #fafafa; border-radius: 30px;
+            display: grid; gap: 12px; padding: 15px; border: 2px solid #eee;
         }
-
         .grid-cell {
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 15px; display: flex; justify-content: center; align-items: center;
-            font-size: 5rem; font-weight: 900; color: rgba(255,255,255,0.1);
+            background: white; border-radius: 20px; display: flex; justify-content: center;
+            align-items: center; font-size: 4rem; font-weight: 900; color: #eee;
         }
-
         .correct-hit { animation: flashGreen 0.2s ease-out; }
-        @keyframes flashGreen { 0% { background: rgba(57, 255, 20, 0.4); } 100% { background: transparent; } }
-        .stage-error { animation: flashRed 0.2s ease-out; }
-        @keyframes flashRed { 0% { border-color: var(--neon-red); } }
+        @keyframes flashGreen { 0% { background: #e8f5e9; } 100% { background: white; } }
+        .stage-error { animation: shake 0.2s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
+        /* 純色球體 */
         #target { 
-            width: 80px; height: 80px; border-radius: 50%; position: fixed; 
-            display: none; z-index: 10; border: 4px solid #fff; pointer-events: none;
-            transition: all 0.05s ease-out;
+            width: 80px; height: 80px; border-radius: 50%; position: fixed; display: none; 
+            z-index: 10; border: 6px solid #fff; pointer-events: none;
+            transition: all 0.05s ease-out; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
-        .info-panel { display: flex; justify-content: space-around; font-size: 2.2rem; font-weight: 900; margin-bottom: 15px; }
-
+        .info-panel { display: flex; justify-content: space-around; font-size: 1.8rem; font-weight: 900; margin-bottom: 15px; color: #aaa; }
+        
         .popup-effect {
-            position: fixed; font-size: 3.5rem; font-weight: 900; pointer-events: none; 
-            z-index: 101; animation: popupFloat 0.4s ease-out forwards; text-shadow: 0 0 15px currentColor;
+            position: fixed; font-size: 2.5rem; font-weight: 900; pointer-events: none; 
+            z-index: 101; animation: popupMove 0.5s ease-out forwards;
         }
-        @keyframes popupFloat { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.7); } 100% { opacity: 0; transform: translate(-50%, -130%) scale(1.3); } }
+        @keyframes popupMove { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -100px); } }
 
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
+            background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
         }
-        #result-box { background: #0a0a0a; padding: 50px; border-radius: 30px; text-align: center; border: 2px solid var(--neon-blue); }
-        .res-btn-group { display: flex; gap: 15px; justify-content: center; }
+        #result-box { background: white; padding: 40px; border-radius: 40px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-    <h1>NEURAL REACTION</h1>
+    <h1>Reaction</h1>
 
     <div id="step1" class="container active">
-        <p style="text-align:center; color:#555; letter-spacing:2px;">SELECT OPERATOR</p>
+        <p style="text-align:center; color:#bbb; font-weight:bold; letter-spacing:2px;">SELECT CORE</p>
         <div class="role-grid">
-            <div class="role-card" onclick="setRole('gold')"><div class="char-circle" style="background:gold; color:gold;"></div><b>黃金英雄</b></div>
-            <div class="role-card" onclick="setRole('cyan')"><div class="char-circle" style="background:cyan; color:cyan;"></div><b>青藍忍者</b></div>
-            <div class="role-card" onclick="setRole('magenta')"><div class="char-circle" style="background:#ff007f; color:#ff007f;"></div><b>桃紅刺客</b></div>
+            <div class="role-card" onclick="setRole('var(--cute-yellow)')">
+                <div class="char-circle" style="background: var(--cute-yellow);"></div>
+                <div style="font-weight:bold; color:#888;">YELLOW</div>
+            </div>
+            <div class="role-card" onclick="setRole('var(--cute-pink)')">
+                <div class="char-circle" style="background: var(--cute-pink);"></div>
+                <div style="font-weight:bold; color:#888;">PINK</div>
+            </div>
+            <div class="role-card" onclick="setRole('var(--cute-blue)')">
+                <div class="char-circle" style="background: var(--cute-blue);"></div>
+                <div style="font-weight:bold; color:#888;">BLUE</div>
+            </div>
         </div>
     </div>
 
     <div id="step2" class="container">
-        <button class="back-btn" onclick="showStep(1)">← 返回角色選擇</button>
-        <p style="text-align:center; color:#555; letter-spacing:2px; margin-top: 40px;">DYNAMIC GRID MODE</p>
+        <button class="back-btn" onclick="showStep(1)">BACK</button>
+        <p style="text-align:center; color:#bbb; font-weight:bold; margin-top: 40px;">SELECT MODE</p>
         <div class="diff-group">
-            <button class="diff-btn b-easy" onclick="start(['4','5','1','2'], 700)">初級反應 (2x2 大區域)</button>
-            <button class="diff-btn b-med" onclick="start(['4','5','6','1','2','3'], 500)">中級同步 (2x3 中區域)</button>
-            <button class="diff-btn b-hard" onclick="start(['7','8','9','4','5','6','1','2','3'], 350)">巔峰超頻 (3x3 九宮格)</button>
+            <button class="diff-btn b-easy" onclick="start(['4','5','1','2'], 700)">Easy (2x2)</button>
+            <button class="diff-btn b-med" onclick="start(['4','5','6','1','2','3'], 500)">Medium (2x3)</button>
+            <button class="diff-btn b-hard" onclick="start(['7','8','9','4','5','6','1','2','3'], 350)">Hard (3x3)</button>
         </div>
     </div>
 
     <div id="step3" class="container">
-        <button class="back-btn" onclick="stopGameAndGoMenu()">← 退出測試</button>
         <div class="info-panel">
-            <span style="color:var(--neon-red);">TIME: <span id="timer">35</span></span>
-            <span style="color:var(--neon-blue);">DATA: <span id="score">0</span> / 7</span>
+            <span>TIME: <span id="timer">35</span></span>
+            <span>SCORE: <span id="score">0</span> / 7</span>
         </div>
         <div id="game-stage"></div>
         <div id="target"></div>
@@ -153,12 +144,9 @@
 
     <div id="result-overlay">
         <div id="result-box">
-            <h2 id="res-title" style="font-size: 3.5rem;"></h2>
-            <p id="res-msg" style="font-size: 1.5rem; margin-bottom: 30px;"></p>
-            <div class="res-btn-group">
-                <button style="background:var(--neon-blue); border:none; padding:15px 30px; cursor:pointer; font-weight:bold; border-radius:5px;" onclick="location.reload()">重新啟動</button>
-                <button style="background:transparent; border:1px solid #555; color:#888; padding:15px 30px; cursor:pointer; font-weight:bold; border-radius:5px;" onclick="showStep(1); document.getElementById('result-overlay').style.display='none';">回到首頁</button>
-            </div>
+            <h2 id="res-title" style="font-size: 2.5rem; color:#888;"></h2>
+            <p id="res-msg" style="margin-bottom: 25px; color:#aaa;"></p>
+            <button style="background:#888; color:white; border:none; padding:12px 25px; border-radius:15px; font-weight:bold; cursor:pointer;" onclick="location.reload()">RETRY</button>
         </div>
     </div>
 
@@ -166,60 +154,32 @@
         let pColor = "", pScore = 0, pTime = 35, active = false, moveTimer, countdownInterval;
         let allowedKeys = [], currentTargetKey = "";
 
-        // 切換介面
         function showStep(n) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.getElementById('step' + n).classList.add('active');
         }
 
-        // 退出遊戲
-        function stopGameAndGoMenu() {
-            active = false;
-            clearTimeout(moveTimer);
-            clearInterval(countdownInterval);
-            document.getElementById('target').style.display = 'none';
-            showStep(1);
-        }
+        function setRole(color) { pColor = color; showStep(2); }
 
         function initGrid(keys) {
             const stage = document.getElementById('game-stage');
             stage.innerHTML = '';
-            if (keys.length === 4) {
-                stage.style.gridTemplateColumns = 'repeat(2, 1fr)';
-                stage.style.gridTemplateRows = 'repeat(2, 1fr)';
-            } else if (keys.length === 6) {
-                stage.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                stage.style.gridTemplateRows = 'repeat(2, 1fr)';
-            } else {
-                stage.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                stage.style.gridTemplateRows = 'repeat(3, 1fr)';
-            }
+            if (keys.length === 4) { stage.style.gridTemplateColumns = 'repeat(2, 1fr)'; }
+            else { stage.style.gridTemplateColumns = 'repeat(3, 1fr)'; }
             keys.forEach(num => {
                 let cell = document.createElement('div');
-                cell.className = 'grid-cell';
-                cell.id = 'cell-' + num;
-                cell.innerText = num;
+                cell.className = 'grid-cell'; cell.id = 'cell-' + num; cell.innerText = num;
                 stage.appendChild(cell);
             });
-        }
-
-        function setRole(c) {
-            pColor = (c === 'magenta') ? '#ff007f' : c;
-            showStep(2);
         }
 
         function start(keys, speed) {
             allowedKeys = keys; active = true; pScore = 0; pTime = 35;
             initGrid(keys);
-            document.getElementById('score').innerText = "0";
-            document.getElementById('timer').innerText = "35";
+            document.getElementById('score').innerText = "0"; document.getElementById('timer').innerText = "35";
             showStep(3);
-            
             const ball = document.getElementById('target');
-            ball.style.backgroundColor = pColor;
-            ball.style.boxShadow = `0 0 40px ${pColor}, inset 0 0 10px #fff`;
-            ball.style.display = 'block';
-
+            ball.innerText = ""; ball.style.backgroundColor = pColor; ball.style.display = 'block';
             countdownInterval = setInterval(() => {
                 pTime--; document.getElementById('timer').innerText = pTime;
                 if (pTime <= 0) { clearInterval(countdownInterval); if (active) end(false); }
@@ -232,35 +192,30 @@
             currentTargetKey = allowedKeys[Math.floor(Math.random() * allowedKeys.length)];
             const cell = document.getElementById('cell-' + currentTargetKey);
             const rect = cell.getBoundingClientRect();
-            
             const ball = document.getElementById('target');
-            const safeWidth = rect.width - 100;
-            const safeHeight = rect.height - 100;
-            ball.style.left = (rect.left + 10 + Math.random() * safeWidth) + "px";
-            ball.style.top = (rect.top + 10 + Math.random() * safeHeight) + "px";
-            
+            ball.style.left = (rect.left + rect.width/2 - 40) + "px";
+            ball.style.top = (rect.top + rect.height/2 - 40) + "px";
             moveTimer = setTimeout(() => jump(speed), speed);
         }
 
         document.addEventListener('keydown', (e) => {
             if (!active) return;
-            let key = e.key;
-            if (key.startsWith('Numpad')) key = key.replace('Numpad', '');
-            
-            const ball = document.getElementById('target').getBoundingClientRect();
-            const cx = ball.left + 40, cy = ball.top + 40;
+            let key = e.key; if (key.startsWith('Numpad')) key = key.replace('Numpad', '');
+            const ballRect = document.getElementById('target').getBoundingClientRect();
+            const cx = ballRect.left + 40, cy = ballRect.top + 40;
 
             if (key === currentTargetKey) {
                 pScore++; document.getElementById('score').innerText = pScore;
-                const cell = document.getElementById('cell-' + key);
-                cell.classList.remove('correct-hit'); void cell.offsetWidth; cell.classList.add('correct-hit');
-                showPopup(cx, cy, '+1', 'var(--neon-green)');
+                document.getElementById('cell-' + key).classList.add('correct-hit');
+                setTimeout(() => document.getElementById('cell-' + key).classList.remove('correct-hit'), 200);
+                showPopup(cx, cy, '+1', '#81c784'); // 純文字加分
                 if (pScore >= 7) end(true);
             } else if (allowedKeys.includes(key)) {
-                if (pScore > 0) pScore--; document.getElementById('score').innerText = pScore;
-                const stage = document.getElementById('game-stage');
-                stage.classList.remove('stage-error'); void stage.offsetWidth; stage.classList.add('stage-error');
-                showPopup(cx, cy, '-1', 'var(--neon-red)');
+                if (pScore > 0) pScore--; 
+                document.getElementById('score').innerText = pScore;
+                document.getElementById('game-stage').classList.add('stage-error');
+                setTimeout(() => document.getElementById('game-stage').classList.remove('stage-error'), 200);
+                showPopup(cx, cy, '-1', '#e57373'); // 純文字扣分
             }
         });
 
@@ -269,16 +224,15 @@
             p.className = 'popup-effect'; p.innerText = text;
             p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.color = color;
             document.body.appendChild(p);
-            setTimeout(() => p.remove(), 400);
+            setTimeout(() => p.remove(), 500);
         }
 
         function end(win) {
             active = false; clearTimeout(moveTimer); clearInterval(countdownInterval);
             document.getElementById('target').style.display = 'none';
             document.getElementById('result-overlay').style.display = 'flex';
-            document.getElementById('res-title').innerText = win ? "SUCCESS" : "FAILURE";
-            document.getElementById('res-title').style.color = win ? "var(--neon-gold)" : "var(--neon-red)";
-            document.getElementById('res-msg').innerText = win ? "神經連結完美達成。" : "同步率不足，連線中斷。";
+            document.getElementById('res-title').innerText = win ? "PASSED" : "FAILED";
+            document.getElementById('res-msg').innerText = win ? "Great reaction time!" : "Try again to improve.";
         }
     </script>
 </body>
