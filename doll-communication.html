@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>萌寵叢林大冒險</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --cute-pink: #ffb7c5;
             --cute-blue: #aec6cf;
             --cute-yellow: #fdfd96;
             --cute-green: #b2e0b2;
-            --glass-white: rgba(255, 255, 255, 0.95);
+            --font-main: 'Fredoka', 'Quicksand', '微軟正黑體', sans-serif;
         }
 
         body {
@@ -20,122 +21,129 @@
                 radial-gradient(circle at 80% 10%, rgba(255, 255, 200, 0.2) 0%, transparent 30%),
                 linear-gradient(160deg, #1b5e20 0%, #2e7d32 40%, #4caf50 100%);
             color: #444;
-            font-family: '微軟正黑體', sans-serif;
+            font-family: var(--font-main);
             margin: 0; display: flex; flex-direction: column; align-items: center;
             min-height: 100vh; overflow: hidden; user-select: none;
         }
 
         h1 {
-            font-size: 2.5rem; margin: 20px 0; font-weight: 900; color: white;
-            text-shadow: 3px 3px 0px #1b5e20; letter-spacing: 2px;
+            font-size: 3.2rem; margin: 25px 0; font-weight: 700; color: white;
+            text-shadow: 0 4px 0 #1b5e20, 0 8px 15px rgba(0,0,0,0.3);
+            letter-spacing: 4px;
         }
 
         .container {
-            width: 90%; max-width: 650px; background: var(--glass-white);
-            border-radius: 40px; padding: 30px; display: none;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); position: relative;
+            width: 90%; max-width: 650px; background: rgba(255, 255, 255, 0.95);
+            border-radius: 45px; padding: 35px; display: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative;
+            border: 5px solid #fff;
         }
         .container.active { display: block !important; }
 
         .back-btn {
-            position: absolute; top: 15px; left: 15px; background: #eee;
-            border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer;
+            position: absolute; top: 15px; left: 15px; background: #f0f0f0;
+            border: none; padding: 8px 18px; border-radius: 25px; cursor: pointer;
+            font-family: var(--font-main); font-weight: 600; color: #777;
         }
 
         /* --- 角色選擇 --- */
-        .role-grid { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .role-grid { display: flex; justify-content: center; gap: 20px; margin-top: 25px; }
         .role-card {
-            background: #fff; border: 3px solid #eee; border-radius: 25px;
-            padding: 15px; width: 110px; cursor: pointer; text-align: center; transition: 0.2s;
+            background: #fff; border: 4px solid #f0f0f0; border-radius: 30px;
+            padding: 20px; width: 120px; cursor: pointer; text-align: center; transition: 0.3s;
         }
-        .role-card:hover { transform: translateY(-5px); border-color: var(--cute-green); }
-        .char-circle { font-size: 3rem; margin-bottom: 5px; }
+        .role-card:hover { transform: translateY(-8px); border-color: var(--cute-green); }
+        .char-circle { font-size: 3.5rem; margin-bottom: 10px; }
 
-        /* --- 遊戲模式 --- */
+        /* --- 遊戲模式按鈕 --- */
         .diff-btn {
-            width: 100%; padding: 18px; font-size: 1.4rem; font-weight: 900; color: white;
-            border: none; border-radius: 20px; cursor: pointer; margin-bottom: 12px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            width: 100%; padding: 20px; font-size: 1.5rem; font-weight: 700; color: white;
+            border: none; border-radius: 25px; cursor: pointer; margin-bottom: 15px;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.15); font-family: var(--font-main);
         }
         .b-easy { background: #66bb6a; }
         .b-med { background: #ffa726; }
         .b-hard { background: #ef5350; }
 
-        /* --- 遊戲舞台：絕對對齊核心 --- */
+        /* --- 遊戲舞台 --- */
         #game-stage {
-            width: 100%; height: 50vh; display: grid; gap: 10px; padding: 10px;
-            background: #f0f0f0; border-radius: 25px; border: 4px solid #fff;
+            width: 100%; height: 50vh; display: grid; gap: 12px; padding: 12px;
+            background: #f8f9fa; border-radius: 30px; border: 4px solid #eee;
         }
         .grid-cell {
-            background: #fff; border-radius: 20px; border: 2px dashed #ddd;
+            background: #fff; border-radius: 22px; border: 2px dashed #e0e0e0;
             display: flex; justify-content: center; align-items: center;
-            font-size: 4rem; font-weight: 900; color: #eee;
-            position: relative; /* 讓角色定位於此 */
+            font-size: 4.5rem; font-weight: 700; color: #f0f0f0;
+            position: relative; /* 核心：讓球在格子內絕對定位 */
+            overflow: hidden; /* 確保球絕不溢出格子邊界 */
         }
 
-        /* 角色球體：改為絕對置中 */
+        /* 角色球體：改為絕對定位，但不設固定 left/top */
         #target-ball { 
-            width: 90px; height: 90px; border-radius: 50%;
-            background: white; border: 5px solid;
+            width: 85px; height: 85px; border-radius: 50%;
+            background: white; border: 6px solid;
             display: flex; justify-content: center; align-items: center;
-            font-size: 3.5rem; position: absolute; /* 相對於格子 */
+            font-size: 3.5rem; position: absolute;
             z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            animation: popUp 0.1s ease-out;
+            transition: all 0.1s ease-out; /* 讓移動看起來有一點點平滑感 */
+            animation: popUp 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes popUp { from { transform: scale(0.5); } to { transform: scale(1); } }
+        @keyframes popUp { from { transform: scale(0.6); } to { transform: scale(1); } }
 
-        .info-panel { display: flex; justify-content: space-around; font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; }
-        
-        /* 乾淨的加減分提示 */
+        .info-panel { display: flex; justify-content: space-around; font-size: 2rem; font-weight: 700; margin-bottom: 15px; }
+        .stat-item { background: #fff; padding: 5px 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
         .popup-text {
-            position: fixed; font-size: 3rem; font-weight: 900; pointer-events: none; 
+            position: fixed; font-size: 3.5rem; font-weight: 700; pointer-events: none; 
             z-index: 100; animation: floatUp 0.5s ease-out forwards;
+            text-shadow: 2px 2px 0 #fff;
         }
-        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -80px); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -100px); } }
 
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000;
+            background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000;
+            backdrop-filter: blur(8px);
         }
-        #result-box { background: #fff; padding: 40px; border-radius: 30px; text-align: center; }
+        #result-box { background: #fff; padding: 50px; border-radius: 40px; text-align: center; border: 8px solid var(--cute-green); }
     </style>
 </head>
 <body>
 
-    <h1>萌寵叢林大冒險</h1>
+    <h1>Reaction</h1>
 
     <div id="step1" class="container active">
-        <p style="text-align:center; font-weight:bold;">🌿 選擇探險夥伴 🌿</p>
+        <p style="text-align:center; font-weight:600; color:#888;">SELECT PARTNER</p>
         <div class="role-grid">
             <div class="role-card" onclick="setRole('🐱', '#ffba00')">
                 <div class="char-circle">🐱</div>
-                <div>探險貓</div>
+                <div class="role-name">探險貓</div>
             </div>
             <div class="role-card" onclick="setRole('🐰', '#ff9eb5')">
                 <div class="char-circle">🐰</div>
-                <div>叢林兔</div>
+                <div class="role-name">叢林兔</div>
             </div>
             <div class="role-card" onclick="setRole('🐶', '#8fb7d3')">
                 <div class="char-circle">🐶</div>
-                <div>勇敢狗</div>
+                <div class="role-name">勇敢狗</div>
             </div>
         </div>
     </div>
 
     <div id="step2" class="container">
-        <button class="back-btn" onclick="showStep(1)">⬅️ 返回</button>
-        <p style="text-align:center; font-weight:bold; margin-top: 30px;">🍃 選擇探險難度 🍃</p>
+        <button class="back-btn" onclick="showStep(1)">⬅️ BACK</button>
+        <p style="text-align:center; font-weight:600; color:#888; margin-top: 40px;">SELECT LEVEL</p>
         <div class="diff-group">
-            <button class="diff-btn b-easy" onclick="start(['4','5','1','2'], 800)">🌱 簡單 (2x2)</button>
-            <button class="diff-btn b-med" onclick="start(['4','5','6','1','2','3'], 600)">🍂 普通 (2x3)</button>
-            <button class="diff-btn b-hard" onclick="start(['7','8','9','4','5','6','1','2','3'], 450)">🐍 困難 (3x3)</button>
+            <button class="diff-btn b-easy" onclick="start(['4','5','1','2'], 800)">Easy (2x2)</button>
+            <button class="diff-btn b-med" onclick="start(['4','5','6','1','2','3'], 600)">Normal (2x3)</button>
+            <button class="diff-btn b-hard" onclick="start(['7','8','9','4','5','6','1','2','3'], 450)">Hard (3x3)</button>
         </div>
     </div>
 
     <div id="step3" class="container">
         <div class="info-panel">
-            <span style="color:#e91e63;">⏰ <span id="timer">35</span></span>
-            <span style="color:#2196f3;">⭐ <span id="score">0</span> / 7</span>
+            <div class="stat-item" style="color:#e91e63;">⏰ <span id="timer">35</span></div>
+            <div class="stat-item" style="color:#2196f3;">⭐ <span id="score">0</span> / 7</div>
         </div>
         <div id="game-stage"></div>
     </div>
@@ -144,7 +152,7 @@
         <div id="result-box">
             <h2 id="res-title"></h2>
             <p id="res-msg"></p>
-            <button style="background:#43a047; color:white; border:none; padding:10px 20px; border-radius:15px; cursor:pointer;" onclick="location.reload()">再次挑戰</button>
+            <button style="background:#43a047; color:white; border:none; padding:15px 40px; border-radius:25px; cursor:pointer; font-weight:700; font-family:var(--font-main);" onclick="location.reload()">REPLAY</button>
         </div>
     </div>
 
@@ -166,7 +174,6 @@
             stage.innerHTML = '';
             if (keys.length === 4) stage.style.gridTemplateColumns = 'repeat(2, 1fr)';
             else stage.style.gridTemplateColumns = 'repeat(3, 1fr)';
-            
             keys.forEach(num => {
                 let cell = document.createElement('div');
                 cell.className = 'grid-cell';
@@ -183,7 +190,6 @@
             document.getElementById('timer').innerText = "35";
             showStep(3);
 
-            // 初始化球體
             const ball = document.getElementById('target-ball');
             ball.innerText = pEmoji;
             ball.style.borderColor = pColor;
@@ -198,15 +204,33 @@
             jump(speed);
         }
 
+        // ⭐ 核心修正：隨機定位且不跑出界
         function jump(speed) {
             if (!active) return;
-            // 隨機選一格
             currentTargetKey = allowedKeys[Math.floor(Math.random() * allowedKeys.length)];
             const targetCell = document.getElementById('cell-' + currentTargetKey);
             const ball = document.getElementById('target-ball');
 
-            // ⭐ 核心修正：直接將球移動到該格子內
+            // 1. 先將球放入格子
             targetCell.appendChild(ball);
+
+            // 2. 計算隨機偏移
+            // 取得格子寬高與球的寬高
+            const cellW = targetCell.clientWidth;
+            const cellH = targetCell.clientHeight;
+            const ballSize = 85; // 與 CSS 一致
+
+            // 計算可移動的安全範圍 (格子尺寸 - 球尺寸 - 緩衝)
+            const maxLeft = cellW - ballSize - 10;
+            const maxTop = cellH - ballSize - 10;
+
+            // 產生隨機座標 (最少留 5px 邊距)
+            const randomX = Math.max(5, Math.random() * maxLeft);
+            const randomY = Math.max(5, Math.random() * maxTop);
+
+            // 3. 應用位置
+            ball.style.left = randomX + "px";
+            ball.style.top = randomY + "px";
 
             moveTimer = setTimeout(() => jump(speed), speed);
         }
@@ -234,7 +258,7 @@
             const p = document.createElement('div');
             p.className = 'popup-text';
             p.innerText = txt;
-            p.style.left = (rect.left + rect.width/2) + 'px';
+            p.style.left = (rect.left + 42) + 'px';
             p.style.top = rect.top + 'px';
             p.style.color = color;
             document.body.appendChild(p);
@@ -246,10 +270,10 @@
             clearInterval(countdownInterval);
             clearTimeout(moveTimer);
             document.getElementById('result-overlay').style.display = 'flex';
-            document.getElementById('res-title').innerText = win ? "🎉 探險成功！" : "🌿 探險失敗";
-            document.getElementById('res-msg').innerText = win ? "你完美的穿過了叢林！" : "再試一次吧！";
+            document.getElementById('res-title').innerText = win ? "🎉 SUCCESS!" : "🌿 FAILED";
+            document.getElementById('res-title').style.color = win ? "#43a047" : "#ef5350";
+            document.getElementById('res-msg').innerText = win ? "You're a jungle expert!" : "Try again!";
         }
     </script>
 </body>
 </html>
-       
