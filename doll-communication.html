@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -163,4 +163,90 @@
             numpadOrder.forEach(num => {
                 let cell = document.createElement('div');
                 cell.className = 'grid-cell';
-                cell
+                cell.id = 'cell-' + num;
+                cell.innerText = num;
+                stage.appendChild(cell);
+            });
+        }
+        initGrid();
+
+        function setRole(c) {
+            pColor = (c === 'magenta') ? '#ff007f' : c;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        }
+
+        function start(keys, speed) {
+            allowedKeys = keys; active = true;
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+            
+            allowedKeys.forEach(k => document.getElementById('cell-'+k).classList.add('active-zone'));
+
+            const ball = document.getElementById('target');
+            ball.style.backgroundColor = pColor;
+            ball.style.boxShadow = `0 0 50px ${pColor}, inset 0 0 15px #fff`;
+            ball.style.display = 'block';
+
+            const countdown = setInterval(() => {
+                pTime--; document.getElementById('timer').innerText = pTime;
+                if (pTime <= 0) { clearInterval(countdown); if (active) end(false); }
+            }, 1000);
+            jump(speed);
+        }
+
+        function jump(speed) {
+            if (!active) return;
+            currentTargetKey = allowedKeys[Math.floor(Math.random() * allowedKeys.length)];
+            const cell = document.getElementById('cell-' + currentTargetKey);
+            const rect = cell.getBoundingClientRect();
+            
+            const ball = document.getElementById('target');
+            // 讓球在大格子中隨機出現在中間 60% 的區域，避免撞牆
+            const margin = rect.width * 0.2;
+            ball.style.left = (rect.left + margin + Math.random() * (rect.width - 2*margin - 100)) + "px";
+            ball.style.top = (rect.top + margin + Math.random() * (rect.height - 2*margin - 100)) + "px";
+            
+            moveTimer = setTimeout(() => jump(speed), speed);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!active) return;
+            let key = e.key;
+            if (key.startsWith('Numpad')) key = key.replace('Numpad', '');
+            
+            const ball = document.getElementById('target').getBoundingClientRect();
+            const cx = ball.left + 50, cy = ball.top + 50;
+
+            if (key === currentTargetKey) {
+                pScore++; document.getElementById('score').innerText = pScore;
+                const cell = document.getElementById('cell-' + key);
+                cell.classList.remove('correct-hit'); void cell.offsetWidth; cell.classList.add('correct-hit');
+                showPopup(cx, cy, '+1', 'var(--neon-green)');
+                if (pScore >= 7) end(true);
+            } else if (allowedKeys.includes(key)) {
+                if (pScore > 0) pScore--; document.getElementById('score').innerText = pScore;
+                const stage = document.getElementById('game-stage');
+                stage.classList.remove('stage-error'); void stage.offsetWidth; stage.classList.add('stage-error');
+                showPopup(cx, cy, '-1', 'var(--neon-red)');
+            }
+        });
+
+        function showPopup(x, y, text, color) {
+            const p = document.createElement('div');
+            p.className = 'popup-effect'; p.innerText = text;
+            p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.color = color;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 400);
+        }
+
+        function end(win) {
+            active = false; clearTimeout(moveTimer);
+            document.getElementById('result-overlay').style.display = 'flex';
+            document.getElementById('res-title').innerText = win ? "PERFECT" : "SYSTEM FAILURE";
+            document.getElementById('res-title').style.color = win ? "var(--neon-gold)" : "var(--neon-red)";
+            document.getElementById('res-msg').innerText = win ? "神經連結率：100%。你是真正的鍵盤戰神。" : "同步率過低，系統已強制登出。";
+        }
+    </script>
+</body>
+</html>
